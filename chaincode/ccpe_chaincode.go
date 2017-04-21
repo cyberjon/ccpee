@@ -209,7 +209,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 
 					founded.TXs = append(founded.TXs, trans.TXs[i])
 					i++
-					return nil, nil
+					//return nil, nil
 
 				} else {
 
