@@ -187,38 +187,34 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		//var arf string
 		//arf := args[1]
 		aro, err := strconv.Atoi(args[1])
-		i := 0
-
-	L:
-		for i <= rng {
+		for i := rng - 1; i >= 0; i-- {
 
 			trid, err := strconv.Atoi(trans.TXs[i].Id)
 			prid, err := strconv.Atoi(trans.TXs[i].Prev_Transaction_id)
-			//aro := rng
 			if prid == 1 {
 				if err != nil {
 					return nil, err
 				}
 
 				founded.TXs = append(founded.TXs, trans.TXs[i])
-				i++
-
-				goto L
+				break
 			} else {
 
 				if trid == aro {
-
-					founded.TXs = append(founded.TXs, trans.TXs[i])
-					jsonAsBytes, _ := json.Marshal(founded)
-					return jsonAsBytes, nil
-
-				} else {
-
-					founded.TXs = append(founded.TXs, trans.TXs[i])
+					k := i
+					for j := k; j >= 0; j-- {
+						aro, err := strconv.Atoi(trans.TXs[j].Id)
+						prid, err := strconv.Atoi(trans.TXs[j].Prev_Transaction_id)
+						if prid == aro || prid != 1 {
+							if err != nil {
+								return nil, err
+							}
+							founded.TXs = append(founded.TXs, trans.TXs[j])
+						}
+					}
 
 				}
 			}
-			i++
 		}
 
 		jsonAsBytes, _ := json.Marshal(founded)
