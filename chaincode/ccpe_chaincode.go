@@ -14,10 +14,10 @@ limitations under the License.
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
-	"encoding/json"
 	//"time"
 	//"strings"
 
@@ -28,36 +28,30 @@ import (
 type SimpleChaincode struct {
 }
 
-var pointIndexStr = "_pointindex"				//name for the key/value that will store a list of all known points
-var transactionStr = "_completedtx"				        //name for the key/value that will store all completed transactions
+var pointIndexStr = "_pointindex"   //name for the key/value that will store a list of all known points
+var transactionStr = "_completedtx" //name for the key/value that will store all completed transactions
 
 var testStr = "_testIndex"
 
-
-type Point struct{
-	Transfer string `json:"transfer_id"`			   // transfer_points_id   //the fieldtags are needed to keep case from bouncing around
-	Owner string `json:"owner"`                // User ID of owner
-	Amount string `json:"amount"`	               // Amount of transfered points
-	Seller string `json:"seller"`	               // Seller ID of points
-	Timestamp string `json:"tr_time"`		   //utc timestamp of creation
+type Point struct {
+	Transfer  string `json:"transfer_id"` // transfer_points_id   //the fieldtags are needed to keep case from bouncing around
+	Owner     string `json:"owner"`       // User ID of owner
+	Amount    string `json:"amount"`      // Amount of transfered points
+	Seller    string `json:"seller"`      // Seller ID of points
+	Timestamp string `json:"tr_time"`     //utc timestamp of creation
 }
 
-type Transaction struct{
-	Id string `json:"txID"`					   //Transaction ID from cppe system
-	Timestamp string `json:"EX_TIME"`		   //utc timestamp of creation
-	TraderA string  `json:"USER_A_ID"`		   //UserA ID
-	TraderB string  `json:"USER_B_ID"`         //UserB ID
-	SellerA string  `json:"SELLER_A_ID"`	   //UserA's Seller ID
-	SellerB string  `json:"SELLER_B_ID"`       //UserB's Seller ID
-	PointA string  `json:"POINT_A"`            //Points owned by UserA after exchange
-	PointB string  `json:"POINT_B"`            //Points owned by UserB after exchange
-	Prev_Transaction_id_A string `json:"PREV_TR_ID_A"`
-	Prev_Transaction_id_B string `json:"PREV_TR_ID_B"`
-	//Related []Point `json:"related"`		   //array of points willing to trade away
+type Transaction struct {
+	Id                  string `json:"txID"`         //Transaction ID from cppe system
+	Timestamp           string `json:"EX_TIME"`      //utc timestamp of creation
+	TraderA             string `json:"USER_A_ID"`    //UserA ID
+	TraderB             string `json:"USER_B_ID"`    //UserB ID
+	Seller              string `json:"SELLER_ID"`    //UserA's Seller ID
+	Point_Amount        string `json:"POINT_AMOUNT"` //Points owned by UserA after exchange
+	Prev_Transaction_id string `json:"PREV_TR_ID"`
 }
 
-
-type AllTx struct{
+type AllTx struct {
 	TXs []Transaction `json:"tx"`
 }
 
@@ -74,7 +68,7 @@ func main() {
 // Init resets all the things
 func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	var Aval int
-	var err error    
+	var err error
 
 	if len(args) != 1 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 1")
@@ -87,27 +81,25 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	}
 
 	// Write the state to the ledger
-	err = stub.PutState("abc", []byte(strconv.Itoa(Aval)))                                   //making a test var "abc"
-    if err != nil {
-	        return nil, err
+	err = stub.PutState("abc", []byte(strconv.Itoa(Aval))) //making a test var "abc"
+	if err != nil {
+		return nil, err
 	}
 
-	
 	var empty []string
-	jsonAsBytes, _ := json.Marshal(empty)								//marshal an emtpy array of strings to clear the index
+	jsonAsBytes, _ := json.Marshal(empty) //marshal an emtpy array of strings to clear the index
 	err = stub.PutState(pointIndexStr, jsonAsBytes)
 	if err != nil {
 		return nil, err
 	}
 
-	
 	err = stub.PutState(testStr, jsonAsBytes)
 	if err != nil {
 		return nil, err
 	}
 
 	var trades AllTx
-	jsonAsBytes, _ = json.Marshal(trades)								//clear the open trade struct
+	jsonAsBytes, _ = json.Marshal(trades) //clear the open trade struct
 	err = stub.PutState(transactionStr, jsonAsBytes)
 	if err != nil {
 		return nil, err
@@ -115,7 +107,6 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 
 	return nil, nil
 }
-
 
 // ============================================================================================================================
 // Run - Our entry point for Invocations - [LEGACY] obc-peer 4/25/2016
@@ -125,24 +116,23 @@ func (t *SimpleChaincode) Run(stub shim.ChaincodeStubInterface, function string,
 	return t.Invoke(stub, function, args)
 }
 
-
 // Invoke is our entry point to invoke a chaincode function
 func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fmt.Println("invoke is running " + function)
 
 	// Handle different functions
-	if function == "init" {													//initialize the chaincode state, used as reset
+	if function == "init" { //initialize the chaincode state, used as reset
 		return t.Init(stub, "init", args)
 	} else if function == "write" {
-        return t.write(stub, args)
-    } else if function == "init_transaction" {
-        return t.init_transaction(stub, args)
-    }  else if function == "init_point" {									//create a new marble
-		return t.init_point(stub, args) 
-    } else if function == "test" {
+		return t.write(stub, args)
+	} else if function == "init_transaction" {
+		return t.init_transaction(stub, args)
+	} else if function == "init_point" { //create a new marble
+		return t.init_point(stub, args)
+	} else if function == "test" {
 		return t.test(stub, args)
 	}
-	fmt.Println("invoke did not find func: " + function)					//error
+	fmt.Println("invoke did not find func: " + function) //error
 
 	return nil, errors.New("Received unknown function invocation: " + function)
 }
@@ -153,11 +143,11 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 
 	// Handle different functions
 
-	if function == "read" {													//read a variable
+	if function == "read" { //read a variable
 		return t.read(stub, args)
 	}
 
-	fmt.Println("query did not find func: " + function)						//error
+	fmt.Println("query did not find func: " + function) //error
 
 	return nil, errors.New("Received unknown function query: " + function)
 }
@@ -175,12 +165,12 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			return nil, errors.New("Incorrect number of arguments. Expecting function name and name of the var to query")
 		}
 
-											//get the var from chaincode state
+		//get the var from chaincode state
 		if err != nil {
 			jsonResp = "{\"Error\":\"Failed to get state for " + args[1] + "\"}"
 			return nil, errors.New(jsonResp)
 		}
-		txAsbytes, err := stub.GetState(transactionStr)	
+		txAsbytes, err := stub.GetState(transactionStr)
 		if err != nil {
 			jsonResp = "{\"Error\":\"Failed to get state for " + args[1] + "\"}"
 			return nil, errors.New(jsonResp)
@@ -191,22 +181,21 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		var trans AllTx
 		// Read that structure for Transaction Index
 		json.Unmarshal(txAsbytes, &trans)
-				
-		jsonAsBytes, _ := json.Marshal(trans)			
-		return jsonAsBytes, nil
 
-	} else if fun=="findLatestBySeller"{
+		jsonAsBytes, _ := json.Marshal(trans)
+		return jsonAsBytes, nil
+	} else if fun == "findLatestBySeller" {
 		if len(args) != 3 {
 			return nil, errors.New("Incorrect number of arguments. Expecting function name and name of the var to query")
 		}
 
 		// Numeric conversions are Atoi (string to int
-		seller,err := strconv.Atoi(args[1])
+		seller, err := strconv.Atoi(args[1])
 		//seller = args[1]
-		limit,err := strconv.Atoi(args[2])
+		limit, err := strconv.Atoi(args[2])
 
 		// Check Transaction index if it's not empty
-		txAsbytes, err := stub.GetState(transactionStr)	
+		txAsbytes, err := stub.GetState(transactionStr)
 		if err != nil {
 			jsonResp = "{\"Error\":\"Failed to get state for " + args[1] + "\"}"
 			return nil, errors.New(jsonResp)
@@ -220,15 +209,16 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 
 		var founded AllTx
 
-		for i := range trans.TXs{		
+		for i := range trans.TXs {
 			// Amashia problema
-			seller_cc_A,err := strconv.Atoi(trans.TXs[i].SellerA)
-			seller_cc_B,err := strconv.Atoi(trans.TXs[i].SellerB)
+			seller_cc, err := strconv.Atoi(trans.TXs[i].Seller)
+			//seller_cc_B,err := strconv.Atoi(trans.TXs[i].SellerB)
 			//seller_cc_A = trans.TXs[i].SellerA
 			//seller_cc_B = trans.TXs[i].SellerB
-			if err == nil {}
-			if (seller_cc_A == seller) || (seller_cc_B == seller){
-				founded.TXs = append(founded.TXs,trans.TXs[i])
+			if err == nil {
+			}
+			if seller_cc == seller {
+				founded.TXs = append(founded.TXs, trans.TXs[i])
 			}
 		}
 		var fulLen = len(founded.TXs)
@@ -237,16 +227,16 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			jsonAsBytes, _ := json.Marshal(founded)
 
 			return jsonAsBytes, nil
-		}else{
+		} else {
 			jsonAsBytes, _ := json.Marshal(founded)
 			return jsonAsBytes, nil
 		}
-	}/* else if fun=="findLatestTrs"{
+	} /* else if fun=="findLatestTrs"{
 		if len(args) != 3 {
 			return nil, errors.New("Incorrect number of arguments. Expecting function name and name of the var to query")
 		}
 	}*/
-	return nil, err													//send it onward
+	return nil, err //send it onward
 }
 
 // ============================================================================================================================
@@ -261,16 +251,14 @@ func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string)
 		return nil, errors.New("Incorrect number of arguments. Expecting 2. name of the variable and value to set")
 	}
 
-	name = args[0]															//rename for funsies
+	name = args[0] //rename for funsies
 	value = args[1]
-	err = stub.PutState(name, []byte(value))								//write the variable into the chaincode state
+	err = stub.PutState(name, []byte(value)) //write the variable into the chaincode state
 	if err != nil {
 		return nil, err
 	}
 	return nil, nil
 }
-
-
 
 // ============================================================================================================================
 // Init Point - create a new record of points ownership, who owns what? store into chaincode state
@@ -278,7 +266,7 @@ func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string)
 func (t *SimpleChaincode) init_point(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	var err error
 
-	//   0        		1       
+	//   0        		1
 	// "SellerXhash", "Owner"
 	if len(args) != 5 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 5")
@@ -311,7 +299,6 @@ func (t *SimpleChaincode) init_point(stub shim.ChaincodeStubInterface, args []st
 	amount := args[2]
 	seller := args[3]
 	tr_time := args[4]
-	
 
 	//check if points record already exists
 	pointAsBytes, err := stub.GetState(transfer_id)
@@ -321,66 +308,60 @@ func (t *SimpleChaincode) init_point(stub shim.ChaincodeStubInterface, args []st
 
 	res := Point{}
 	json.Unmarshal(pointAsBytes, &res)
-	if res.Transfer == transfer_id{
+	if res.Transfer == transfer_id {
 		fmt.Println("This point arleady exists: " + transfer_id)
-		fmt.Println(res);
-		return nil, errors.New("This point arleady exists")				//all stop a marble by this name exists
+		fmt.Println(res)
+		return nil, errors.New("This point arleady exists") //all stop a marble by this name exists
 	}
-	
+
 	//build the point json string manually
 	str := `{"transfer_id": "` + transfer_id + `", "owner": "` + owner + `", "amount": "` + amount + `", "seller": "` + seller + `", "timestamp": "` + tr_time + `"}`
 	//str := `{"transfer_id": "` + transfer_id + `", "owner": "` + owner + `", "amount": "` + amount + `}`
 	//str := `{"transfer_id": "` + transfer_id + `", "owner": "` + owner + `"}`
-	err = stub.PutState(transfer_id, []byte(str))									//store Points with id as key
+	err = stub.PutState(transfer_id, []byte(str)) //store Points with id as key
 	if err != nil {
 		return nil, err
 	}
-		
+
 	//get the points index
-	pointAsByte , err := stub.GetState(pointIndexStr)
+	pointAsByte, err := stub.GetState(pointIndexStr)
 	if err != nil {
 		return nil, errors.New("Failed to get point index")
 	}
 	var pointIndex []string
-	json.Unmarshal(pointAsByte, &pointIndex)							//un stringify it aka JSON.parse()
-	
+	json.Unmarshal(pointAsByte, &pointIndex) //un stringify it aka JSON.parse()
+
 	//append
-	pointIndex = append(pointIndex, transfer_id)									//add points name to index list
+	pointIndex = append(pointIndex, transfer_id) //add points name to index list
 	fmt.Println("! point index: ", pointIndex)
 	jsonAsBytes, _ := json.Marshal(pointIndex)
-	err = stub.PutState(pointIndexStr, jsonAsBytes)						//store name of Points (id of transfer) 
+	err = stub.PutState(pointIndexStr, jsonAsBytes) //store name of Points (id of transfer)
 
 	fmt.Println("- end init marble")
 	return nil, nil
 }
- 
 
 // ============================================================================================================================
 // Init Transaction - create a new record of transaction, who send to who? and what? store into chaincode state
 // ============================================================================================================================
 
 func (t *SimpleChaincode) init_transaction(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	var err error	
+	var err error
 	//	0        1      2     3      4      5       6
 	//["000009", "claudio", "alex", "Taobao", "TMall", "500", "600", "4453", "4456", "22/3/2017 2:34:12"]
 
-
-
 	completed := Transaction{}
-	completed.Id = args[0]	
+	completed.Id = args[0]
 	completed.TraderA = args[1]
 	completed.TraderB = args[2]
-	completed.SellerA = args[3]
-	completed.SellerB = args[4]
-	completed.PointA = args[5]
-	completed.PointB = args[6]
-	completed.Prev_Transaction_id_A = args[7]
-	completed.Prev_Transaction_id_B = args[8]
-	completed.Timestamp = args[9]
-	
+	completed.Seller = args[3]
+	completed.Point_Amount = args[4]
+	completed.Prev_Transaction_id = args[5]
+	completed.Timestamp = args[6]
+
 	fmt.Println("- start completed trade")
 	jsonAsBytes, _ := json.Marshal(completed)
-	err = stub.PutState("_debug1", jsonAsBytes)                                // Write completed transaction under the key _debug1
+	err = stub.PutState("_debug1", jsonAsBytes) // Write completed transaction under the key _debug1
 
 	//get the completed trade struct
 	tradesAsBytes, err := stub.GetState(transactionStr)
@@ -389,12 +370,12 @@ func (t *SimpleChaincode) init_transaction(stub shim.ChaincodeStubInterface, arg
 	}
 
 	var trades AllTx
-	json.Unmarshal(tradesAsBytes, &trades)										//un stringify it aka JSON.parse()
-	
-	trades.TXs = append(trades.TXs, completed);						            //append to completed trades
+	json.Unmarshal(tradesAsBytes, &trades) //un stringify it aka JSON.parse()
+
+	trades.TXs = append(trades.TXs, completed) //append to completed trades
 	fmt.Println("! appended completed to trades")
 	jsonAsBytes, _ = json.Marshal(trades)
-	err = stub.PutState(transactionStr, jsonAsBytes)								//rewrite completed orders
+	err = stub.PutState(transactionStr, jsonAsBytes) //rewrite completed orders
 	if err != nil {
 		return nil, err
 	}
@@ -402,16 +383,15 @@ func (t *SimpleChaincode) init_transaction(stub shim.ChaincodeStubInterface, arg
 	return nil, nil
 }
 
-
 func (t *SimpleChaincode) test(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	var err error
-	
+
 	//   0       1
 	// "name", "bob"
 	if len(args) < 2 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 2")
 	}
-	
+
 	fmt.Println("- start test fcn")
 	fmt.Println(args[0] + " - " + args[1])
 
@@ -422,7 +402,7 @@ func (t *SimpleChaincode) test(stub shim.ChaincodeStubInterface, args []string) 
 	}
 	var test []string
 
-	json.Unmarshal(testAsBytes, &test)	
-	
+	json.Unmarshal(testAsBytes, &test)
+
 	return nil, nil
 }

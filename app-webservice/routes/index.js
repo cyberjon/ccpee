@@ -30,8 +30,8 @@ var my_cc;
                 "id": "app_peer"
             }],
             users:  [{
-                "enrollId": "test_user0",
-                "enrollSecret": "MS9qrN8hFjlE"
+                "enrollId": "user_type1_0",
+                "enrollSecret": "cf18b28045"
             }],
             options: {              //this is optional 
                 quiet: true, 
