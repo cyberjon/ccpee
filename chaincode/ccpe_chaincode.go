@@ -182,8 +182,33 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		// Read that structure for Transaction Index
 		json.Unmarshal(txAsbytes, &trans)
 
-		jsonAsBytes, _ := json.Marshal(trans)
+		var founded AllTx
+	L:
+		for i := range trans.TXs {
+			trid, err := strconv.Atoi(trans.TXs[i].Id)
+			aro, err := strconv.Atoi(args[1])
+			prid, err := strconv.Atoi(trans.TXs[i].Prev_Transaction_id)
+			//seller_cc_B = trans.TXs[i].SellerB
+			if err == nil {
+			}
+			if trid == aro {
+				if prid != 1 {
+
+					founded.TXs = append(founded.TXs, trans.TXs[i])
+					goto L
+
+				} else {
+
+					founded.TXs = append(founded.TXs, trans.TXs[i])
+
+				}
+			}
+		}
+
+		jsonAsBytes, _ := json.Marshal(founded)
 		return jsonAsBytes, nil
+		//jsonAsBytes, _ := json.Marshal(trans)
+		//return jsonAsBytes, nil
 	} else if fun == "findLatestBySeller" {
 		if len(args) != 3 {
 			return nil, errors.New("Incorrect number of arguments. Expecting function name and name of the var to query")
