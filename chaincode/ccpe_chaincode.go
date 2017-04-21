@@ -208,8 +208,8 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 				if trid == aro {
 
 					founded.TXs = append(founded.TXs, trans.TXs[i])
-					i++
-					//return nil, nil
+					jsonAsBytes, _ := json.Marshal(founded)
+					return jsonAsBytes, nil
 
 				} else {
 
@@ -222,8 +222,6 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 
 		jsonAsBytes, _ := json.Marshal(founded)
 		return jsonAsBytes, nil
-		//jsonAsBytes, _ := json.Marshal(trans)
-		//return jsonAsBytes, nil
 	} else if fun == "findLatestBySeller" {
 		if len(args) != 3 {
 			return nil, errors.New("Incorrect number of arguments. Expecting function name and name of the var to query")
