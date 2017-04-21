@@ -187,7 +187,38 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		//var arf string
 		//arf := args[1]
 		aro, err := strconv.Atoi(args[1])
-		track(founded, trans, 0, 0, aro, rng)
+		i := 0
+	L:
+		for i <= rng {
+
+			trid, err := strconv.Atoi(trans.TXs[i].Id)
+			prid, err := strconv.Atoi(trans.TXs[i].Prev_Transaction_id)
+			//aro := rng
+			if prid == 1 {
+				if err != nil {
+					return nil, err
+				}
+
+				founded.TXs = append(founded.TXs, trans.TXs[i])
+				i++
+
+				goto L
+			} else {
+
+				if trid == aro {
+
+					founded.TXs = append(founded.TXs, trans.TXs[i])
+					i++
+					return nil, nil
+
+				} else {
+
+					founded.TXs = append(founded.TXs, trans.TXs[i])
+
+				}
+			}
+			i++
+		}
 
 		jsonAsBytes, _ := json.Marshal(founded)
 		return jsonAsBytes, nil
@@ -246,36 +277,6 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		}
 	}*/
 	return nil, err //send it onward
-}
-
-func track(founded AllTx, trans AllTx, id int, i int, aro int, rng int) {
-	for i <= rng {
-
-		trid, err := strconv.Atoi(trans.TXs[i].Id)
-		prid, err := strconv.Atoi(trans.TXs[i].Prev_Transaction_id)
-		if err != nil {
-		}
-		if id == 1 {
-
-			founded.TXs = append(founded.TXs, trans.TXs[i])
-			i++
-			track(founded, trans, prid, i, aro, rng)
-		} else {
-
-			if trid == aro {
-
-				founded.TXs = append(founded.TXs, trans.TXs[i])
-				i++
-				return
-
-			} else {
-
-				founded.TXs = append(founded.TXs, trans.TXs[i])
-
-			}
-		}
-		i++
-	}
 }
 
 // ============================================================================================================================
