@@ -181,11 +181,12 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		var trans AllTx
 		// Read that structure for Transaction Index
 		json.Unmarshal(txAsbytes, &trans)
-
+		rng := len(trans.TXs)
 		var founded AllTx
+		i := 0
+	L:
+		if i <= rng {
 
-		for i := range trans.TXs {
-		L:
 			trid, err := strconv.Atoi(trans.TXs[i].Id)
 			aro, err := strconv.Atoi(args[1])
 			prid, err := strconv.Atoi(trans.TXs[i].Prev_Transaction_id)
