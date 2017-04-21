@@ -191,13 +191,12 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			aro, err := strconv.Atoi(args[1])
 			prid, err := strconv.Atoi(trans.TXs[i].Prev_Transaction_id)
 			//seller_cc_B = trans.TXs[i].SellerB
-			if err == nil {
-			}
-			if trid == aro {
+
+			if trid == aro || prid != 1 {
 				if prid != 1 {
 
 					founded.TXs = append(founded.TXs, trans.TXs[i])
-					i++
+
 					goto L
 
 				} else {
@@ -206,6 +205,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 
 				}
 			}
+			i++
 		}
 
 		jsonAsBytes, _ := json.Marshal(founded)
