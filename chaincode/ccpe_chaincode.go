@@ -185,7 +185,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		var founded AllTx
 		i := 0
 	L:
-		if i <= rng {
+		for i <= rng {
 
 			trid, err := strconv.Atoi(trans.TXs[i].Id)
 			aro, err := strconv.Atoi(args[1])
