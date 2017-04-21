@@ -183,8 +183,9 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		json.Unmarshal(txAsbytes, &trans)
 
 		var founded AllTx
-	L:
+
 		for i := range trans.TXs {
+		L:
 			trid, err := strconv.Atoi(trans.TXs[i].Id)
 			aro, err := strconv.Atoi(args[1])
 			prid, err := strconv.Atoi(trans.TXs[i].Prev_Transaction_id)
@@ -195,6 +196,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 				if prid != 1 {
 
 					founded.TXs = append(founded.TXs, trans.TXs[i])
+					i++
 					goto L
 
 				} else {
