@@ -218,9 +218,9 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		}
 		var key string
 		key = args[1]
-		valAsbytes, err := stub.GetState(key)
+		vals, err := stub.GetState(key)
 
-		alAsbytes, _ := json.Marshal(valAsbytes)
+		alAsbytes, _ := json.Marshal(vals)
 		return alAsbytes, nil
 	} else if fun == "findLatestBySeller" {
 		if len(args) != 3 {
