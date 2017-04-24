@@ -192,27 +192,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			jsonResp = "{\"Error\":\"Failed to get state for " + args[1] + "\"}"
 			return nil, errors.New(jsonResp)
 		}
-		var tID = args[1]
-		resp, err := http.Get("http://148.100.4.235:7050/transactions/" + tID)
-		if err != nil {
-			// handle error
-		}
-		defer resp.Body.Close()
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			log.Fatal(err)
-		}
-		byteArray := []byte(body)
-		var t Transact
-		json.Unmarshal(byteArray, &t)
-		st, err := base64.StdEncoding.DecodeString(t.Payload)
-		if err != nil {
-			log.Fatal(err)
-		}
-		trd := string(st)
-		sp1 := strings.Replace(trd, "\n", " ", -1)
-
-		sp := strings.Split(sp1, "\x20")
+		//var tID = args[1]
 
 		// Start logic
 		// Create a var from Transaction structure
@@ -223,10 +203,33 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		var founded AllTx
 		//var arf string
 		//arf := args[1]
-		aro := sp[3]
-		for i := rng - 1; i >= 0; i-- {
 
-			trid := trans.TXs[i].Id
+		for i := rng - 1; i >= 0; i-- {
+			c := 0
+			var tID = args[1]
+		M:
+
+			resp, err := http.Get("https://eaf64d13f6fc4d5caeacc5be900d20f0-vp0.us.blockchain.ibm.com:5003/transactions/" + tID)
+			if err != nil {
+				// handle error
+			}
+			defer resp.Body.Close()
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				log.Fatal(err)
+			}
+			byteArray := []byte(body)
+			var t Transact
+			json.Unmarshal(byteArray, &t)
+			st, err := base64.StdEncoding.DecodeString(t.Payload)
+			if err != nil {
+				log.Fatal(err)
+			}
+			trd := string(st)
+			sp1 := strings.Replace(trd, "\n", " ", -1)
+			sp := strings.Split(sp1, "\x20")
+
+			trid := sp[3]
 			prid := trans.TXs[i].Prev_Transaction_id
 			if prid == "1" {
 				if err != nil {
@@ -237,18 +240,11 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 				break
 			} else {
 
-				if trid == aro {
-					k := i
-					for j := k; j >= 0; j-- {
-						aro := trans.TXs[j].Id
-						prid := trans.TXs[j].Prev_Transaction_id
-						if prid == aro || prid != "1" {
-							if err != nil {
-								return nil, err
-							}
-							founded.TXs = append(founded.TXs, trans.TXs[j])
-						}
-					}
+				if trid == tID {
+					founded.TXs = append(founded.TXs, trans.TXs[i])
+					tID = prid
+					c++
+					goto M
 
 				}
 			}

@@ -42,10 +42,15 @@ func main() {
 	if er != nil {
 		log.Fatal(er)
 	}
+
 	fmt.Println(string(tr))
 
 }
 func mainReturnWithCode() ([]byte, error) {
+	var str []string
+	c := 0
+	//var x = []byte{}
+M:
 	var tID = "3ec98fdb-d35d-4556-8426-92e538c386ab"
 	resp, err := http.Get("http://148.100.4.235:7050/transactions/" + tID)
 	if err != nil {
@@ -65,16 +70,26 @@ func mainReturnWithCode() ([]byte, error) {
 	}
 	trd := string(st)
 	sp1 := strings.Replace(trd, "\n", " ", -1)
-
 	sp := strings.Split(sp1, "\x20")
 
-	trD := `{"bid": "` + sp[1] + `", "fun": "` + sp[2] + `", "id": "` + sp[3] + `", "traderA": "` + sp[4] + `", "traderB": "` + sp[5] + `", "seller": "` + sp[6] + `", "pointAmount": "` + sp[7] + `", "prevTransactionId": "` + sp[8] + `", "timestamp": "` + sp[9] + `"}`
+	// trD := `{"bid": "` + sp[1] + `", "fun": "` + sp[2] + `", "id": "` + sp[3] + `", "traderA": "` + sp[4] + `", "traderB": "` + sp[5] + `", "seller": "` + sp[6] + `", "pointAmount": "` + sp[7] + `", "prevTransactionId": "` + sp[8] + `", "timestamp": "` + sp[9] + `"}`
+	//
+	// 	something := json.RawMessage(trD)
+	//
+	// 	jsonAsB, _ := something.MarshalJSON()
+	// 	var tt AllTxs
+	// 	json.Unmarshal(jsonAsB, &tt)
 
-	something := json.RawMessage(trD)
+	//jsonAsBy := []byte(sp[3])
 
-	jsonAsB, _ := something.MarshalJSON()
-	var tt AllTxs
-	json.Unmarshal(jsonAsB, &tt)
-	jsonAsBy, _ := json.Marshal(tt)
+	str = append(str, sp[3])
+	c++
+	if c < 3 {
+		goto M
+	}
+
+	stringByte := "\x00" + strings.Join(str, "\x20\x00")
+	jsonAsBy := []byte(stringByte)
+	//jsonAsBy, _ := json.Marshal(ids)
 	return jsonAsBy, nil
 }
