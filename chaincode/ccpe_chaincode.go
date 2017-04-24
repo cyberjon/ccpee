@@ -61,21 +61,6 @@ type AllTx struct {
 	TXs []Transaction `json:"tx"`
 }
 
-type Transac struct {
-	Bid               string `json:"bid"`
-	Fun               string `json:"fun"`
-	Id                string `json:"id"`
-	Timestamp         string `json:"timestamp"`
-	TraderA           string `json:"traderA"`
-	TraderB           string `json:"traderB"`
-	Seller            string `json:"seller"`
-	PointAmount       string `json:"pointAmount"`
-	PrevTransactionID string `json:"prevTransactionId"`
-}
-
-type AllTxs struct {
-	TXs []Transac `json:"tx"`
-}
 type Transact struct {
 	Cert        string `json:"cert"`
 	ChaincodeID string `json:"chaincodeID"`
@@ -228,20 +213,15 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			log.Fatal(err)
 		}
 		trd := string(st)
-		sp := strings.Split(trd, "\n")
-		trD, er := fmt.Printf(`{"tx": [{"bid": "%s", "fun": "%s", "id": "%s", "traderA": "%s", "traderB": "%s", "seller": "%s", "pointAmount": "%s", "prevTransactionId": "%s", "timestamp": "%s"}]}`, sp[1], sp[2], sp[3], sp[4], sp[5], sp[6], sp[7], sp[8], sp[9])
-		if err != nil {
-			log.Fatal(er)
-		}
-		trS := string(trD)
-		byteArr := []byte(trS)
-		var tt AllTxs
-		json.Unmarshal(byteArr, &tt)
-		var found AllTxs
-		for i := range tt.TXs {
-			found.TXs = append(found.TXs, tt.TXs[i])
-		}
-		jsonAsB, _ := json.Marshal(found)
+		sp1 := strings.Replace(trd, "\n", " ", -1)
+
+		sp := strings.Split(sp1, "\x20")
+
+		trD := `{"tx": [{"bid": "` + sp[1] + `", "fun": "` + sp[2] + `", "id": "` + sp[3] + `", "traderA": "` + sp[4] + `", "traderB": "` + sp[5] + `", "seller": "` + sp[6] + `", "pointAmount": "` + sp[7] + `", "prevTransactionId": "` + sp[8] + `", "timestamp": "` + sp[9] + `"}]}`
+
+		something := json.RawMessage(trD)
+
+		jsonAsB, _ := something.MarshalJSON()
 		return jsonAsB, nil
 	} else if fun == "findLatestBySeller" {
 		if len(args) != 3 {

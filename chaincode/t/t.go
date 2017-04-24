@@ -8,23 +8,25 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	//"unicode/utf8"
 )
 
-type Transac struct {
-	Bid               string `json:"bid"`
-	Fun               string `json:"fun"`
-	Id                string `json:"id"`
-	Timestamp         string `json:"timestamp"`
-	TraderA           string `json:"traderA"`
-	TraderB           string `json:"traderB"`
-	Seller            string `json:"seller"`
-	PointAmount       string `json:"pointAmount"`
-	PrevTransactionID string `json:"prevTransactionId"`
-}
+// type Transac struct {
+// 	I                 string `json:"i"`
+// 	T                 string `json:"t"`
+// 	Tr                string `json:"tr"`
+// 	Id                string `json:"id"`
+// 	Timestamp         string `json:"timestamp"`
+// 	TraderA           string `json:"traderA"`
+// 	TraderB           string `json:"traderB"`
+// 	Seller            string `json:"seller"`
+// 	PointAmount       string `json:"pointAmount"`
+// 	PrevTransactionID string `json:"prevTransactionId"`
+// }
 
-type AllTxs struct {
-	TXs []Transac `json:"tx"`
-}
+// type AllTxs struct {
+// 	TXs []Transac `json:"tx"`
+// }
 type Transact struct {
 	Cert        string `json:"cert"`
 	ChaincodeID string `json:"chaincodeID"`
@@ -37,6 +39,14 @@ type Transact struct {
 }
 
 func main() {
+	tr, er := mainReturnWithCode()
+	if er != nil {
+		log.Fatal(er)
+	}
+	fmt.Println(string(tr))
+
+}
+func mainReturnWithCode() ([]byte, error) {
 	var tID = "3ec98fdb-d35d-4556-8426-92e538c386ab"
 	resp, err := http.Get("http://148.100.4.235:7050/transactions/" + tID)
 	if err != nil {
@@ -55,19 +65,14 @@ func main() {
 		log.Fatal(err)
 	}
 	trd := string(st)
-	sp := strings.Split(trd, "\n")
-	trD, er := fmt.Printf(`{"tx": [{"bid": "%s", "fun": "%s", "id": "%s", "traderA": "%s", "traderB": "%s", "seller": "%s", "pointAmount": "%s", "prevTransactionId": "%s", "timestamp": "%s"}]}`, sp[1], sp[2], sp[3], sp[4], sp[5], sp[6], sp[7], sp[8], sp[9])
-	if err != nil {
-		log.Fatal(er)
-	}
-	trS := string(trD)
-	byteArr := []byte(trS)
-	var tt AllTxs
-	json.Unmarshal(byteArr, &tt)
-	var found AllTxs
-	for i := range tt.TXs {
-		found.TXs = append(found.TXs, tt.TXs[i])
-	}
-	jsonAsB, _ := json.Marshal(found)
-	return jsonAsB
+	sp1 := strings.Replace(trd, "\n", " ", -1)
+
+	sp := strings.Split(sp1, "\x20")
+
+	trD := `{"tx": [{"bid": "` + sp[1] + `", "fun": "` + sp[2] + `", "id": "` + sp[3] + `", "traderA": "` + sp[4] + `", "traderB": "` + sp[5] + `", "seller": "` + sp[6] + `", "pointAmount": "` + sp[7] + `", "prevTransactionId": "` + sp[8] + `", "timestamp": "` + sp[9] + `"}]}`
+
+	something := json.RawMessage(trD)
+
+	jsonAsB, _ := something.MarshalJSON()
+	return jsonAsB, nil
 }
