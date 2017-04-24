@@ -60,7 +60,6 @@ type Transaction struct {
 type AllTx struct {
 	TXs []Transaction `json:"tx"`
 }
-
 type Transact struct {
 	Cert        string `json:"cert"`
 	ChaincodeID string `json:"chaincodeID"`
@@ -188,13 +187,11 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			jsonResp = "{\"Error\":\"Failed to get state for " + args[1] + "\"}"
 			return nil, errors.New(jsonResp)
 		}
-		//txAsbytes, err := stub.GetState(transactionStr)
+		txAsbytes, err := stub.GetState(transactionStr)
 		if err != nil {
 			jsonResp = "{\"Error\":\"Failed to get state for " + args[1] + "\"}"
 			return nil, errors.New(jsonResp)
 		}
-
-		// Start logic
 		var tID = args[1]
 		resp, err := http.Get("http://148.100.4.235:7050/transactions/" + tID)
 		if err != nil {
@@ -217,12 +214,48 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 
 		sp := strings.Split(sp1, "\x20")
 
-		trD := `{"tx": [{"bid": "` + sp[1] + `", "fun": "` + sp[2] + `", "id": "` + sp[3] + `", "traderA": "` + sp[4] + `", "traderB": "` + sp[5] + `", "seller": "` + sp[6] + `", "pointAmount": "` + sp[7] + `", "prevTransactionId": "` + sp[8] + `", "timestamp": "` + sp[9] + `"}]}`
+		// Start logic
+		// Create a var from Transaction structure
+		var trans AllTx
+		// Read that structure for Transaction Index
+		json.Unmarshal(txAsbytes, &trans)
+		rng := len(trans.TXs)
+		var founded AllTx
+		//var arf string
+		//arf := args[1]
+		aro := sp[3]
+		for i := rng - 1; i >= 0; i-- {
 
-		something := json.RawMessage(trD)
+			trid := trans.TXs[i].Id
+			prid := trans.TXs[i].Prev_Transaction_id
+			if prid == "1" {
+				if err != nil {
+					return nil, err
+				}
 
-		jsonAsB, _ := something.MarshalJSON()
-		return jsonAsB, nil
+				founded.TXs = append(founded.TXs, trans.TXs[i])
+				break
+			} else {
+
+				if trid == aro {
+					k := i
+					for j := k; j >= 0; j-- {
+						aro := trans.TXs[j].Id
+						prid := trans.TXs[j].Prev_Transaction_id
+						if prid == aro || prid != "1" {
+							if err != nil {
+								return nil, err
+							}
+							founded.TXs = append(founded.TXs, trans.TXs[j])
+						}
+					}
+
+				}
+			}
+		}
+
+		jsonAsBytes, _ := json.Marshal(founded)
+		return jsonAsBytes, nil
 	} else if fun == "findLatestBySeller" {
 		if len(args) != 3 {
 			return nil, errors.New("Incorrect number of arguments. Expecting function name and name of the var to query")

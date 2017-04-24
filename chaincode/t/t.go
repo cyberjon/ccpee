@@ -11,22 +11,21 @@ import (
 	//"unicode/utf8"
 )
 
-// type Transac struct {
-// 	I                 string `json:"i"`
-// 	T                 string `json:"t"`
-// 	Tr                string `json:"tr"`
-// 	Id                string `json:"id"`
-// 	Timestamp         string `json:"timestamp"`
-// 	TraderA           string `json:"traderA"`
-// 	TraderB           string `json:"traderB"`
-// 	Seller            string `json:"seller"`
-// 	PointAmount       string `json:"pointAmount"`
-// 	PrevTransactionID string `json:"prevTransactionId"`
-// }
+type Transac struct {
+	Bid               string `json:"bid"`
+	Fun               string `json:"fun"`
+	Id                string `json:"id"`
+	Timestamp         string `json:"timestamp"`
+	TraderA           string `json:"traderA"`
+	TraderB           string `json:"traderB"`
+	Seller            string `json:"seller"`
+	PointAmount       string `json:"pointAmount"`
+	PrevTransactionID string `json:"prevTransactionId"`
+}
 
-// type AllTxs struct {
-// 	TXs []Transac `json:"tx"`
-// }
+type AllTxs struct {
+	TXs []Transac `json:"tx"`
+}
 type Transact struct {
 	Cert        string `json:"cert"`
 	ChaincodeID string `json:"chaincodeID"`
@@ -69,10 +68,13 @@ func mainReturnWithCode() ([]byte, error) {
 
 	sp := strings.Split(sp1, "\x20")
 
-	trD := `{"tx": [{"bid": "` + sp[1] + `", "fun": "` + sp[2] + `", "id": "` + sp[3] + `", "traderA": "` + sp[4] + `", "traderB": "` + sp[5] + `", "seller": "` + sp[6] + `", "pointAmount": "` + sp[7] + `", "prevTransactionId": "` + sp[8] + `", "timestamp": "` + sp[9] + `"}]}`
+	trD := `{"bid": "` + sp[1] + `", "fun": "` + sp[2] + `", "id": "` + sp[3] + `", "traderA": "` + sp[4] + `", "traderB": "` + sp[5] + `", "seller": "` + sp[6] + `", "pointAmount": "` + sp[7] + `", "prevTransactionId": "` + sp[8] + `", "timestamp": "` + sp[9] + `"}`
 
 	something := json.RawMessage(trD)
 
 	jsonAsB, _ := something.MarshalJSON()
-	return jsonAsB, nil
+	var tt AllTxs
+	json.Unmarshal(jsonAsB, &tt)
+	jsonAsBy, _ := json.Marshal(tt)
+	return jsonAsBy, nil
 }
