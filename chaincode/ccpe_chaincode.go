@@ -199,7 +199,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		var trans AllTx
 		// Read that structure for Transaction Index
 		json.Unmarshal(txAsbytes, &trans)
-		//rng := len(trans.TXs)
+		rng := len(trans.TXs)
 		var founded AllTx
 		var ind int
 		//arf := args[1]
@@ -228,7 +228,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		trd := string(st)
 		sp1 := strings.Replace(trd, "\n", " ", -1)
 		sp := strings.Split(sp1, "\x20")
-		for k := range trans.TXs {
+		for k := 0; k < rng; k++ {
 			pr := trans.TXs[k].Prev_Transaction_id
 			if pr == sp[8] && c == 0 {
 				ind = k
