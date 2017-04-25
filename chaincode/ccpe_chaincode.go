@@ -229,8 +229,8 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		sp1 := strings.Replace(trd, "\n", " ", -1)
 		sp := strings.Split(sp1, "\x20")
 		for k := range trans.TXs {
-			prid := trans.TXs[k].Prev_Transaction_id
-			if prid == sp[8] && c == 0 {
+			pr := trans.TXs[k].Prev_Transaction_id
+			if pr == sp[8] && c == 0 {
 				ind = k
 			}
 		}
