@@ -192,19 +192,12 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			jsonResp = "{\"Error\":\"Failed to get state for " + args[1] + "\"}"
 			return nil, errors.New(jsonResp)
 		}
-		//var tID = args[1]
 
-		// Start logic
-		// Create a var from Transaction structure
 		var trans AllTx
 		// Read that structure for Transaction Index
 		json.Unmarshal(txAsbytes, &trans)
-		//rng := len(trans.TXs)
 		var founded AllTx
 		var indX int
-		//arf := args[1]
-
-		//for i := 0; i < rng; i++ {
 		c := 0
 		var tID = args[1]
 	M:
@@ -254,8 +247,6 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 
 			}
 		}
-		//}
-		//N:
 		jsonAsBytes, _ := json.Marshal(founded)
 		return jsonAsBytes, nil
 	} else if fun == "findLatestBySeller" {
