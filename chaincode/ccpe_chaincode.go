@@ -197,9 +197,9 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		// Read that structure for Transaction Index
 		json.Unmarshal(txAsbytes, &trans)
 		var founded AllTx
-		var indX, indY int
+		var indX int
 		c := 0
-		d := 0
+		//d := 1
 		var tID = args[1]
 	M:
 
@@ -225,19 +225,14 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		prid := strings.Replace(sp[8], "$", "", 1)
 
 		for k := range trans.TXs {
-
 			p := trans.TXs[k].Prev_Transaction_id
 			pr := strings.Replace(p, "$", "", 1)
 			if prid == pr && c == 0 {
 				in := &indX
 				*in = k
-				n := &d
-				*n = 1
-
 				break
 			}
 		}
-
 		if prid == "1" {
 			founded.TXs = append(founded.TXs, trans.TXs[c])
 		} else {
@@ -252,36 +247,22 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			}
 		}
 
-		if d > 0 {
-			r := trans.TXs[d].Id
-			for k := range trans.TXs {
-
-				p := trans.TXs[k].Prev_Transaction_id
-				pr := strings.Replace(p, "$", "", 1)
-				if prid == pr && d == 1 {
-					in := &indY
-					*in = k
-
-					break
-				}
-			}
-			q := trans.TXs[c-1].Id
-			if q == r {
-				if prid == "1" {
-					founded.TXs = append(founded.TXs, trans.TXs[d])
-				} else {
-
-					founded.TXs = append(founded.TXs, trans.TXs[d])
-					tID = prid
-
-					if len(trans.TXs[d-1].Prev_Transaction_id) != 0 {
-						d++
-						goto M
-
-					}
-				}
-			}
-		}
+		// if d > 0 {
+		// 			r := trans.TXs[d].Id
+		// 			for k := range trans.TXs {
+		//
+		// 				p := trans.TXs[k].Prev_Transaction_id
+		// 				pr := strings.Replace(p, "$", "", 1)
+		// 				if prid == pr && d == 1 {
+		// 					in := &indY
+		// 					*in = k
+		//
+		// 					break
+		// 				}
+		// 			}
+		// 			q := trans.TXs[c-1].Id
+		// 			if q == r
+		// 		}
 
 		jsonAsBytes, _ := json.Marshal(founded)
 		return jsonAsBytes, nil

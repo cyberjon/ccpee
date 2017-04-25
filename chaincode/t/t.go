@@ -48,7 +48,8 @@ func main() {
 }
 func mainReturnWithCode() ([]byte, error) {
 	var str []string
-	c := 0
+	c := 4
+	i := 0
 	//var x = []byte{}
 
 	var tID = "b404fbfa-5d00-465f-b8d8-7299eff914b8"
@@ -86,8 +87,8 @@ M:
 		str = append(str, se)
 		tID = se
 
-		if c < 4 {
-			c++
+		if i < c {
+			i++
 			goto M
 
 		}
