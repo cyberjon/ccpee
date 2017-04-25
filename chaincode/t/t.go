@@ -51,7 +51,7 @@ func mainReturnWithCode() ([]byte, error) {
 	c := 0
 	//var x = []byte{}
 
-	var tID = "af3735ee-df42-499d-90e1-9405df448894"
+	var tID = "98d9daad-a66a-414a-9fa3-a1610f08b21c"
 M:
 	resp, err := http.Get("https://eaf64d13f6fc4d5caeacc5be900d20f0-vp0.us.blockchain.ibm.com:5003/transactions/" + tID)
 	if err != nil {
@@ -102,7 +102,7 @@ M:
 		str = append(str, se)
 		tID = se
 
-		if c < 0 {
+		if c < 3 {
 			c++
 			goto M
 
