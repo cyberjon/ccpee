@@ -231,13 +231,29 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			if prid == pr && c == 0 {
 				in := &indX
 				*in = k
+				n := &d
+				*n = 1
 
 				break
 			}
 		}
 
-		r := trans.TXs[c].Id
-		if c > 0 {
+		if prid == "1" {
+			founded.TXs = append(founded.TXs, trans.TXs[c])
+		} else {
+
+			founded.TXs = append(founded.TXs, trans.TXs[c])
+			tID = prid
+
+			if c < indX {
+				c++
+				goto M
+
+			}
+		}
+
+		if d > 0 {
+			r := trans.TXs[d].Id
 			for k := range trans.TXs {
 
 				p := trans.TXs[k].Prev_Transaction_id
@@ -267,19 +283,6 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			}
 		}
 
-		if prid == "1" {
-			founded.TXs = append(founded.TXs, trans.TXs[c])
-		} else {
-
-			founded.TXs = append(founded.TXs, trans.TXs[c])
-			tID = prid
-
-			if c < indX {
-				c++
-				goto M
-
-			}
-		}
 		jsonAsBytes, _ := json.Marshal(founded)
 		return jsonAsBytes, nil
 	} else if fun == "findLatestBySeller" {
