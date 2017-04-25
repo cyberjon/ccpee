@@ -51,7 +51,7 @@ func mainReturnWithCode() ([]byte, error) {
 	c := 0
 	//var x = []byte{}
 
-	var tID = "54e98a38-1b46-4ce8-9edf-d0ea7a743166"
+	var tID = "af3735ee-df42-499d-90e1-9405df448894"
 M:
 	resp, err := http.Get("https://eaf64d13f6fc4d5caeacc5be900d20f0-vp0.us.blockchain.ibm.com:5003/transactions/" + tID)
 	if err != nil {
@@ -71,8 +71,13 @@ M:
 	}
 	trd := string(st)
 	sp1 := strings.Replace(trd, "\n", " ", -1)
-	sp := strings.Split(sp1, "\x20")
-	se := strings.Replace(sp[8], "$", "", 1)
+	sp := strings.Split(sp1, " ")
+	var se string
+	if sp[8] != "1" {
+		se = strings.Replace(sp[8], "$", "", 1)
+	} else if sp[8] == "1" {
+		se = sp[8]
+	}
 
 	// trD := `{"bid": "` + sp[1] + `", "fun": "` + sp[2] + `", "id": "` + sp[3] + `", "traderA": "` + sp[4] + `", "traderB": "` + sp[5] + `", "seller": "` + sp[6] + `", "pointAmount": "` + sp[7] + `", "prevTransactionId": "` + sp[8] + `", "timestamp": "` + sp[9] + `"}`
 	//
@@ -91,23 +96,18 @@ M:
 	// 		goto M
 	// 	}
 	if se == "1" {
-		if err != nil {
-			return nil, err
-		}
-
 		str = append(str, se)
-		goto N
 	} else {
 
 		str = append(str, se)
 		tID = se
-		c++
-		if c < 2 {
+
+		if c < 0 {
+			c++
 			goto M
 
 		}
 	}
-N:
 	stringByte := "\x00" + strings.Join(str, "\x20\x00")
 	jsonAsBy := []byte(stringByte)
 	//jsonAsBy, _ := json.Marshal(ids)
