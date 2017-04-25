@@ -199,7 +199,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		var founded AllTx
 		var indX int
 		c := 0
-		//d := 1
+		d := 1
 		var tID = args[1]
 	M:
 
@@ -235,35 +235,39 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		}
 		if prid == "1" {
 			founded.TXs = append(founded.TXs, trans.TXs[c])
+			goto K
 		} else {
+			if d > 0 {
+				goto L
+			} else {
+				founded.TXs = append(founded.TXs, trans.TXs[c])
+				tID = prid
 
-			founded.TXs = append(founded.TXs, trans.TXs[c])
-			tID = prid
+				if c < indX {
+					c++
+					goto M
 
-			if c < indX {
-				c++
+				}
+			}
+		}
+	L:
+		if d > 0 {
+			r := trans.TXs[d-1].Id
+			s := trans.TXs[d].Id
+			//u := trans.TXs[d+1].Id
+			//for k := range trans.TXs {
+
+			p := trans.TXs[d-1].Prev_Transaction_id
+			pr := strings.Replace(p, "$", "", 1)
+			if r == s {
+				founded.TXs = append(founded.TXs, trans.TXs[d-1])
+				tID = pr
+				d++
 				goto M
 
 			}
 		}
-
-		// if d > 0 {
-		// 			r := trans.TXs[d].Id
-		// 			for k := range trans.TXs {
-		//
-		// 				p := trans.TXs[k].Prev_Transaction_id
-		// 				pr := strings.Replace(p, "$", "", 1)
-		// 				if prid == pr && d == 1 {
-		// 					in := &indY
-		// 					*in = k
-		//
-		// 					break
-		// 				}
-		// 			}
-		// 			q := trans.TXs[c-1].Id
-		// 			if q == r
-		// 		}
-
+	K:
 		jsonAsBytes, _ := json.Marshal(founded)
 		return jsonAsBytes, nil
 	} else if fun == "findLatestBySeller" {
