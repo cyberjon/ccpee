@@ -242,7 +242,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 
 				p := trans.TXs[k].Prev_Transaction_id
 				pr := strings.Replace(p, "$", "", 1)
-				if prid == pr && c == 0 {
+				if prid == pr && d == 0 {
 					in := &indY
 					*in = k
 
