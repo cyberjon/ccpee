@@ -204,7 +204,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		//var arf string
 		//arf := args[1]
 
-		for i := rng - 1; i >= 0; i-- {
+		for i := 0; i < rng; i++ {
 			c := 0
 			var tID = args[1]
 		M:
