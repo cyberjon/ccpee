@@ -238,19 +238,20 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			}
 
 			founded.TXs = append(founded.TXs, trans.TXs[c])
-			goto N
+			//goto N
 		} else {
 
 			founded.TXs = append(founded.TXs, trans.TXs[c])
 			tID = prid
-			c++
+
 			if c < rng-c {
+				c++
 				goto M
 
 			}
 		}
 		//}
-	N:
+		//N:
 		jsonAsBytes, _ := json.Marshal(founded)
 		return jsonAsBytes, nil
 	} else if fun == "findLatestBySeller" {
