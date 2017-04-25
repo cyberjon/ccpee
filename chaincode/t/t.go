@@ -50,9 +50,10 @@ func mainReturnWithCode() ([]byte, error) {
 	var str []string
 	c := 0
 	//var x = []byte{}
+
+	var tID = "c8ca28b5-a52b-44f6-974a-7538251141d6"
 M:
-	var tID = "3ec98fdb-d35d-4556-8426-92e538c386ab"
-	resp, err := http.Get("http://148.100.4.235:7050/transactions/" + tID)
+	resp, err := http.Get("https://eaf64d13f6fc4d5caeacc5be900d20f0-vp0.us.blockchain.ibm.com:5003/transactions/" + tID)
 	if err != nil {
 		// handle error
 	}
@@ -71,6 +72,7 @@ M:
 	trd := string(st)
 	sp1 := strings.Replace(trd, "\n", " ", -1)
 	sp := strings.Split(sp1, "\x20")
+	se := strings.Replace(sp[8], "$", "", 1)
 
 	// trD := `{"bid": "` + sp[1] + `", "fun": "` + sp[2] + `", "id": "` + sp[3] + `", "traderA": "` + sp[4] + `", "traderB": "` + sp[5] + `", "seller": "` + sp[6] + `", "pointAmount": "` + sp[7] + `", "prevTransactionId": "` + sp[8] + `", "timestamp": "` + sp[9] + `"}`
 	//
@@ -82,9 +84,10 @@ M:
 
 	//jsonAsBy := []byte(sp[3])
 
-	str = append(str, sp[3])
+	str = append(str, se)
+	tID = se
 	c++
-	if c < 3 {
+	if c < 5 {
 		goto M
 	}
 

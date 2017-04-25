@@ -231,6 +231,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 
 			trid := sp[3]
 			prid := trans.TXs[i].Prev_Transaction_id
+			prid = strings.Replace(prid, "$", "", 1)
 			if prid == "1" {
 				if err != nil {
 					return nil, err
