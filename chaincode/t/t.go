@@ -51,7 +51,7 @@ func mainReturnWithCode() ([]byte, error) {
 	c := 0
 	//var x = []byte{}
 
-	var tID = "c8ca28b5-a52b-44f6-974a-7538251141d6"
+	var tID = "54e98a38-1b46-4ce8-9edf-d0ea7a743166"
 M:
 	resp, err := http.Get("https://eaf64d13f6fc4d5caeacc5be900d20f0-vp0.us.blockchain.ibm.com:5003/transactions/" + tID)
 	if err != nil {
@@ -84,13 +84,30 @@ M:
 
 	//jsonAsBy := []byte(sp[3])
 
-	str = append(str, se)
-	tID = se
-	c++
-	if c < 5 {
-		goto M
-	}
+	// str = append(str, se)
+	// 	tID = se
+	// 	c++
+	// 	if c < 5 {
+	// 		goto M
+	// 	}
+	if se == "1" {
+		if err != nil {
+			return nil, err
+		}
 
+		str = append(str, se)
+		goto N
+	} else {
+
+		str = append(str, se)
+		tID = se
+		c++
+		if c < 2 {
+			goto M
+
+		}
+	}
+N:
 	stringByte := "\x00" + strings.Join(str, "\x20\x00")
 	jsonAsBy := []byte(stringByte)
 	//jsonAsBy, _ := json.Marshal(ids)
