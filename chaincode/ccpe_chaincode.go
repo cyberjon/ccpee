@@ -199,58 +199,60 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		var trans AllTx
 		// Read that structure for Transaction Index
 		json.Unmarshal(txAsbytes, &trans)
-		rng := len(trans.TXs)
+		//rng := len(trans.TXs)
 		var founded AllTx
 		//var arf string
 		//arf := args[1]
 
-		for i := 0; i < rng; i++ {
-			c := 0
-			var tID = args[1]
-		M:
+		//for i := 0; i < rng; i++ {
+		c := 0
+		var tID = args[1]
+	M:
 
-			resp, err := http.Get("https://eaf64d13f6fc4d5caeacc5be900d20f0-vp0.us.blockchain.ibm.com:5003/transactions/" + tID)
-			if err != nil {
-				// handle error
-			}
-			defer resp.Body.Close()
-			body, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				log.Fatal(err)
-			}
-			byteArray := []byte(body)
-			var t Transact
-			json.Unmarshal(byteArray, &t)
-			st, err := base64.StdEncoding.DecodeString(t.Payload)
-			if err != nil {
-				log.Fatal(err)
-			}
-			trd := string(st)
-			sp1 := strings.Replace(trd, "\n", " ", -1)
-			sp := strings.Split(sp1, "\x20")
-
-			trid := sp[3]
-			prid := trans.TXs[i].Prev_Transaction_id
-			prid = strings.Replace(prid, "$", "", 1)
-			if prid == "1" {
-				if err != nil {
-					return nil, err
-				}
-
-				founded.TXs = append(founded.TXs, trans.TXs[i])
-				break
-			} else {
-
-				if trid == tID {
-					founded.TXs = append(founded.TXs, trans.TXs[i])
-					tID = prid
-					c++
-					goto M
-
-				}
-			}
+		resp, err := http.Get("https://eaf64d13f6fc4d5caeacc5be900d20f0-vp0.us.blockchain.ibm.com:5003/transactions/" + tID)
+		if err != nil {
+			// handle error
 		}
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		byteArray := []byte(body)
+		var t Transact
+		json.Unmarshal(byteArray, &t)
+		st, err := base64.StdEncoding.DecodeString(t.Payload)
+		if err != nil {
+			log.Fatal(err)
+		}
+		trd := string(st)
+		sp1 := strings.Replace(trd, "\n", " ", -1)
+		sp := strings.Split(sp1, "\x20")
 
+		//trid := sp[3]
+		//prid := trans.TXs[i].Prev_Transaction_id
+		prid := strings.Replace(sp[8], "$", "", 1)
+		if prid == "1" {
+			if err != nil {
+				return nil, err
+			}
+
+			founded.TXs = append(founded.TXs, trans.TXs[c])
+			goto N
+		} else {
+
+			//if trid == tID {
+			founded.TXs = append(founded.TXs, trans.TXs[c])
+			tID = prid
+			c++
+			if c < 3 {
+				goto M
+			}
+
+			//}
+		}
+		//}
+	N:
 		jsonAsBytes, _ := json.Marshal(founded)
 		return jsonAsBytes, nil
 	} else if fun == "findLatestBySeller" {
