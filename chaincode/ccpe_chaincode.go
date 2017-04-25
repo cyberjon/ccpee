@@ -248,7 +248,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			founded.TXs = append(founded.TXs, trans.TXs[c])
 			tID = prid
 
-			if c < indX-1 {
+			if c < indX {
 				c++
 				goto M
 
