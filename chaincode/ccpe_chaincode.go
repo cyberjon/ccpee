@@ -224,6 +224,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		prid := strings.Replace(sp[8], "$", "", 1)
 
 		for k := range trans.TXs {
+
 			p := trans.TXs[k].Prev_Transaction_id
 			pr := strings.Replace(p, "$", "", 1)
 			if prid == pr && c == 0 {
@@ -231,6 +232,26 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 				*in = k
 
 				break
+			}
+		}
+
+		r := trans.TXs[c].Id
+		if c > 0 {
+			q := trans.TXs[c-1].Id
+			if q == r {
+				if prid == "1" {
+					founded.TXs = append(founded.TXs, trans.TXs[c])
+				} else {
+
+					founded.TXs = append(founded.TXs, trans.TXs[c])
+					tID = prid
+
+					if c < indX {
+						c++
+						goto M
+
+					}
+				}
 			}
 		}
 
