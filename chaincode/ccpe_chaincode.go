@@ -242,29 +242,32 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		if prid == "1" {
 			founded.TXs = append(founded.TXs, trans.TXs[c])
 			goto K
+		} else if r == s {
+			//tID = pr
+			goto L
 		} else {
-			if d > 0 {
-				goto L
-			} else {
-				founded.TXs = append(founded.TXs, trans.TXs[c])
-				tID = prid
+			// if d > 0 {
+			// 				goto L
+			// 			} else {
+			founded.TXs = append(founded.TXs, trans.TXs[c])
+			tID = prid
 
-				if c < indX {
-					c++
-					goto M
+			if c < indX {
+				c++
+				goto M
 
-				}
+				//}
 			}
 		}
 	L:
 
-		if r == s {
-			founded.TXs = append(founded.TXs, trans.TXs[d])
-			tID = pr
-			d++
-			goto M
+		//if r == s {
+		founded.TXs = append(founded.TXs, trans.TXs[d])
+		tID = pr
+		d++
+		goto M
 
-		}
+		//}
 		//}
 	K:
 		jsonAsBytes, _ := json.Marshal(founded)
