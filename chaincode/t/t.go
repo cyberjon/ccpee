@@ -183,7 +183,12 @@ func mainReturnWithCode() {
 		}
 		return ti
 	}
-	getAll := func(str string, ff int, prt AllTx) AllTx {
+	var jsonFinal chart
+	str := "8600284d-deb7-47f9-9785-42b110e64b14"
+ABAR:
+	inf := 0
+	var getAll func(string, int, AllTx) AllTx
+	getAll = func(str string, ff int, prt AllTx) AllTx {
 		var at Transaction
 		var lst int
 		var ttr, tii string
@@ -201,25 +206,36 @@ func mainReturnWithCode() {
 				count++
 				goto T
 			}
+
 		} else if at.Prev_Transaction_id != "" {
 			str, _, tii = getPrev(str, "")
 			prt.TXs = append(prt.TXs, at)
 			goto T
+
 		} else {
 			lst = inField(tii, trans)
+			inf = lst
 			prt.TXs = append(prt.TXs, trans.TXs[lst])
 			return prt
 		}
+		inf = 0
 		return prt
 
 	}
-	var jsonFinal chart
 
-	q = rn - 1
-	for q > 0 {
+	//jsonAsTr := getAll(str, 0, founded)
+
+	jsonAsTrs := getAll(str, 0, founded)
+
+	jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTrs)
+	q = inf
+
+	if q > 0 {
+
+		//jsonAsTr := getAll(str, 0, founded)
 		to := trans.TXs[q].Id
 		td := trans.TXs[q-1].Id
-
+		fmt.Println(q)
 		if to == td {
 			foun.TXs = append(foun.TXs, trans.TXs[q])
 			jsonAsTr := getAll(trans.TXs[q].Prev_Transaction_id, 1, founded)
@@ -231,9 +247,16 @@ func mainReturnWithCode() {
 			jsonAsTr = getAll(trans.TXs[q-1].Prev_Transaction_id, 4, founded)
 			//fmt.Println(g)
 			jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
+			r := inf
+			if r > 0 {
+				goto ABAR
+			}
+		} else {
+			goto ONTIM
 		}
 		q--
 	}
+ONTIM:
 	jsonAsBy, _ := json.Marshal(jsonFinal)
 	fmt.Println(string(jsonAsBy))
 

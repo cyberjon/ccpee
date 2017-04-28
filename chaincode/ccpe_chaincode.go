@@ -322,6 +322,10 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			}
 			return ti
 		}
+		var jsonFinal chart
+		str := args[1]
+		inf := 0
+	ABAR:
 		getAll := func(str string, ff int, prt AllTx) AllTx {
 			var at Transaction
 			var lst int
@@ -334,7 +338,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			at, _ = findIndex(str, trans)
 
 			if ttr == "1" {
-				prt.TXs = append(prt.TXs, trans.TXs[ff])
+				//prt.TXs = append(prt.TXs, trans.TXs[ff])
 				if count < 1 {
 					str, _, tii = getPrev(ttr, "")
 					count++
@@ -346,19 +350,25 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 				goto T
 			} else {
 				lst = inField(tii, trans)
+				inf = lst
 				prt.TXs = append(prt.TXs, trans.TXs[lst])
 				return prt
 			}
 			return prt
 
 		}
-		var jsonFinal chart
 
-		q = rn - 1
-		for q > 0 {
+		jsonAsTrs := getAll(str, 0, founded)
+
+		jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTrs)
+		q = inf
+
+		if q > 0 {
+
+			//jsonAsTr := getAll(str, 0, founded)
 			to := trans.TXs[q].Id
 			td := trans.TXs[q-1].Id
-
+			fmt.Println(q)
 			if to == td {
 				foun.TXs = append(foun.TXs, trans.TXs[q])
 				jsonAsTr := getAll(trans.TXs[q].Prev_Transaction_id, 1, founded)
@@ -370,9 +380,16 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 				jsonAsTr = getAll(trans.TXs[q-1].Prev_Transaction_id, 4, founded)
 				//fmt.Println(g)
 				jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
+				r := inf
+				if r > 0 {
+					goto ABAR
+				}
+			} else {
+				goto ONTIM
 			}
 			q--
 		}
+	ONTIM:
 		jsonAsB, _ := json.Marshal(jsonFinal)
 		return jsonAsB, nil
 	} else if fun == "findLatestBySeller" {
