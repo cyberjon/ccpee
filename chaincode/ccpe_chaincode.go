@@ -373,7 +373,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			}
 			q--
 		}
-		jsonAsB, _ := json.Marshal(trans)
+		jsonAsB, _ := json.Marshal(jsonFinal)
 		return jsonAsB, nil
 	} else if fun == "findLatestBySeller" {
 		if len(args) != 3 {
