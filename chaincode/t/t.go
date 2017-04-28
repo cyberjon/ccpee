@@ -8,9 +8,21 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	//"unicode/utf8"
 )
 
+type Transaction struct {
+	Id                  string `json:"txID"`         //Transaction ID from cppe system
+	Timestamp           string `json:"EX_TIME"`      //utc timestamp of creation
+	TraderA             string `json:"USER_A_ID"`    //UserA ID
+	TraderB             string `json:"USER_B_ID"`    //UserB ID
+	Seller              string `json:"SELLER_ID"`    //UserA's Seller ID
+	Point_Amount        string `json:"POINT_AMOUNT"` //Points owned by UserA after exchange
+	Prev_Transaction_id string `json:"PREV_TR_ID"`
+}
+
+type AllTx struct {
+	TXs []Transaction `json:"tx"`
+}
 type Transac struct {
 	Bid               string `json:"bid"`
 	Fun               string `json:"fun"`
@@ -36,65 +48,193 @@ type Transact struct {
 	Txid        string `json:"txid"`
 	Type        int    `json:"type"`
 }
+type chart struct {
+	TDs []AllTx `json:"td"`
+}
 
 func main() {
-	tr, er := mainReturnWithCode()
-	if er != nil {
-		log.Fatal(er)
-	}
-
-	fmt.Println(string(tr))
+	// tr, er := mainReturnWithCode()
+	// 	if er != nil {
+	// 		log.Fatal(er)
+	// 	}
+	mainReturnWithCode()
 
 }
-func mainReturnWithCode() ([]byte, error) {
-	var str []string
-	c := 4
-	i := 0
-	//var x = []byte{}
 
-	var tID = "9c62b2e0-ec1c-4073-8422-42a78127b5f8"
-M:
-	resp, err := http.Get("https://eaf64d13f6fc4d5caeacc5be900d20f0-vp0.us.blockchain.ibm.com:5003/transactions/" + tID)
+func mainReturnWithCode() {
+	var prid string
+	q := 0
+
+	res, err := http.Get("http://cyberjon.com/wp-content/tr.json")
 	if err != nil {
 		// handle error
 	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	defer res.Body.Close()
+	bod, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
-	byteArray := []byte(body)
-	var t Transact
-	json.Unmarshal(byteArray, &t)
-	st, err := base64.StdEncoding.DecodeString(t.Payload)
-	if err != nil {
-		log.Fatal(err)
+	byteAr := []byte(bod)
+	var trans AllTx
+	json.Unmarshal(byteAr, &trans)
+	rn := len(trans.TXs)
+	var founded AllTx
+	var foun AllTx
+	//var jsonAsByte byte
+	for q < rn-1 {
+		to := trans.TXs[q].Id
+		td := trans.TXs[q+1].Id
+		if to == td {
+			foun.TXs = append(foun.TXs, trans.TXs[q])
+
+			foun.TXs = append(foun.TXs, trans.TXs[q+1])
+		}
+		q++
 	}
-	trd := string(st)
-	sp1 := strings.Replace(trd, "\n", " ", -1)
-	sp := strings.Split(sp1, " ")
-	var se string
-	if sp[8] != "1" {
-		se = strings.Replace(sp[8], "$", "", 1)
-	} else if sp[8] == "1" {
-		se = sp[8]
-	}
-
-	if se == "1" {
-		str = append(str, se)
-	} else {
-
-		str = append(str, se)
-		tID = se
-
-		if i < c {
-			i++
-			goto M
+	//vn := len(foun.TXs)
+	findIndex := func(str string, trans AllTx) (Transaction, int) {
+		var q Transaction
+		t := 0
+		for i := 0; i < rn; i++ {
+			t++
+			if t > rn {
+				break
+			}
+			if trans.TXs[i].Prev_Transaction_id == str {
+				return trans.TXs[i], i
+			}
 
 		}
+		return q, -2
 	}
-	stringByte := "\x00" + strings.Join(str, "\x20\x00")
-	jsonAsBy := []byte(stringByte)
-	//jsonAsBy, _ := json.Marshal(ids)
-	return jsonAsBy, nil
+	getPrev := func(str string, tid string) (string, int, string) {
+		var m, tii string
+		var ind, n int
+		m = "false"
+		tii = ""
+		n = -1
+		if str == "1" && tid != "" {
+			q := 0
+			for l := 0; l < rn; l++ {
+				q++
+				if q > rn {
+					break
+				}
+				if trans.TXs[l].Id == tid {
+					ind = l
+				}
+
+			}
+			return m, ind, tii
+		}
+		resp, err := http.Get("https://676a3275f6de482aab0e0e9929cccda3-vp0.us.blockchain.ibm.com:5003/transactions/" + str)
+		if err != nil {
+			// handle error
+		}
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		byteArray := []byte(body)
+		var t Transact
+		json.Unmarshal(byteArray, &t)
+		st, err := base64.StdEncoding.DecodeString(t.Payload)
+		if err != nil {
+			log.Fatal(err)
+		}
+		trd := string(st)
+		sp1 := strings.Replace(trd, "\n", " ", -1)
+		sp := strings.Split(sp1, "\x20")
+		rpl := strings.NewReplacer("$", "",
+			`%`, "")
+		if len(trd) > 0 {
+			prid = rpl.Replace(sp[8])
+			tn := sp[3]
+
+			t := 0
+			for i := 0; i < rn; i++ {
+				t++
+				if t > rn {
+					break
+				}
+				if trans.TXs[i].Id == tn {
+					ind = i
+				}
+
+			}
+			return prid, ind, tn
+		}
+		return m, n, tii
+
+	}
+	//var inField func(string, AllTx) int
+	inField := func(ssd string, trans AllTx) int {
+		var ti int
+
+		z := 0
+		for z < rn {
+
+			if ssd == trans.TXs[z].Id && trans.TXs[z].Prev_Transaction_id == "1" {
+				ti = z
+				return ti
+			}
+			z++
+		}
+		return ti
+	}
+	getAll := func(str string, ff int, prt AllTx) AllTx {
+		var at Transaction
+		var lst int
+		var ttr, tii string
+		tii = ""
+		count := 0
+		ttr = str
+
+	T:
+		at, _ = findIndex(str, trans)
+
+		if ttr == "1" {
+			prt.TXs = append(prt.TXs, trans.TXs[ff])
+			if count < 1 {
+				str, _, tii = getPrev(ttr, "")
+				count++
+				goto T
+			}
+		} else if at.Prev_Transaction_id != "" {
+			str, _, tii = getPrev(str, "")
+			prt.TXs = append(prt.TXs, at)
+			goto T
+		} else {
+			lst = inField(tii, trans)
+			prt.TXs = append(prt.TXs, trans.TXs[lst])
+			return prt
+		}
+		return prt
+
+	}
+	var jsonFinal chart
+
+	q = rn - 1
+	for q > 0 {
+		to := trans.TXs[q].Id
+		td := trans.TXs[q-1].Id
+
+		if to == td {
+			foun.TXs = append(foun.TXs, trans.TXs[q])
+			jsonAsTr := getAll(trans.TXs[q].Prev_Transaction_id, 1, founded)
+
+			jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
+
+			foun.TXs = append(foun.TXs, trans.TXs[q-1])
+			//g := findLast(trans.TXs[q-1].Prev_Transaction_id, trans.TXs[q-1].Id)
+			jsonAsTr = getAll(trans.TXs[q-1].Prev_Transaction_id, 4, founded)
+			//fmt.Println(g)
+			jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
+		}
+		q--
+	}
+	jsonAsBy, _ := json.Marshal(jsonFinal)
+	fmt.Println(string(jsonAsBy))
+
 }
