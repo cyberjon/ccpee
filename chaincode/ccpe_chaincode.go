@@ -373,8 +373,8 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			}
 			q--
 		}
-		jsonAsBy, _ := json.Marshal(trans)
-		return jsonAsBy, nil
+		jsonAsB, _ := json.Marshal(trans)
+		return jsonAsB, nil
 	} else if fun == "findLatestBySeller" {
 		if len(args) != 3 {
 			return nil, errors.New("Incorrect number of arguments. Expecting function name and name of the var to query")
