@@ -323,11 +323,10 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			return ti
 		}
 		var jsonFinal chart
+		var jsonAsTrs AllTx
 		str := args[1]
 		inf := 0
-		var getAll func(string, int, AllTx) AllTx
-	ABAR:
-		getAll = func(str string, ff int, prt AllTx) AllTx {
+		getAll := func(str string, ff int, prt AllTx) (AllTx, int) {
 			var at Transaction
 			var lst int
 			var ttr, tii string
@@ -339,50 +338,53 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			at, _ = findIndex(str, trans)
 
 			if ttr == "1" {
-				prt.TXs = append(prt.TXs, trans.TXs[ff])
+				//prt.TXs = append(prt.TXs, trans.TXs[ff])
 				if count < 1 {
 					str, _, tii = getPrev(ttr, "")
 					count++
 					goto T
 				}
+
 			} else if at.Prev_Transaction_id != "" {
 				str, _, tii = getPrev(str, "")
 				prt.TXs = append(prt.TXs, at)
 				goto T
+
 			} else {
 				lst = inField(tii, trans)
 				inf = lst
 				prt.TXs = append(prt.TXs, trans.TXs[lst])
-				return prt
+				return prt, inf
 			}
-			return prt
+			return prt, inf
 
 		}
+	ABAR:
 
-		jsonAsTrs := getAll(str, 0, founded)
+		jsonAsTrs, inf = getAll(str, 0, founded)
 
 		jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTrs)
 		q = inf
-
+		fmt.Println(q)
 		if q > 0 {
-
-			//jsonAsTr := getAll(str, 0, founded)
 			to := trans.TXs[q].Id
 			td := trans.TXs[q-1].Id
+
 			if to == td {
 				foun.TXs = append(foun.TXs, trans.TXs[q])
-				jsonAsTr := getAll(trans.TXs[q].Prev_Transaction_id, 1, founded)
+				jsonAsTr, inf1 := getAll(trans.TXs[q].Prev_Transaction_id, 1, founded)
 
 				jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
 
 				foun.TXs = append(foun.TXs, trans.TXs[q-1])
 				//g := findLast(trans.TXs[q-1].Prev_Transaction_id, trans.TXs[q-1].Id)
-				jsonAsTr = getAll(trans.TXs[q-1].Prev_Transaction_id, 4, founded)
-				//fmt.Println(g)
+				jsonAsTr, _ = getAll(trans.TXs[q-1].Prev_Transaction_id, 4, founded)
+				fmt.Println(inf1)
 				jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
-				r := inf
-				if r > 0 {
-					str, _, _ = getPrev(str, "")
+				str, _, _ = getPrev(str, "")
+				fmt.Println(to)
+				fmt.Println(td)
+				if str != "false" {
 					goto ABAR
 				}
 			} else {
@@ -391,8 +393,8 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			q--
 		}
 	ONTIM:
-		jsonAsB, _ := json.Marshal(jsonFinal)
-		return jsonAsB, nil
+		jsonAsBy, _ := json.Marshal(jsonFinal)
+		fmt.Println(string(jsonAsBy))
 	} else if fun == "findLatestBySeller" {
 		if len(args) != 3 {
 			return nil, errors.New("Incorrect number of arguments. Expecting function name and name of the var to query")

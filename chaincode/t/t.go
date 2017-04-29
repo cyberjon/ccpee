@@ -65,7 +65,7 @@ func mainReturnWithCode() {
 	var prid string
 	q := 0
 
-	res, err := http.Get("http://cyberjon.com/wp-content/tr.json")
+	res, err := http.Get("http://127.0.0.1:8080/t.json")
 	if err != nil {
 		// handle error
 	}
@@ -175,7 +175,7 @@ func mainReturnWithCode() {
 		z := 0
 		for z < rn {
 
-			if ssd == ssd && trans.TXs[z].Prev_Transaction_id == "1" {
+			if "10006" == trans.TXs[z].Id && trans.TXs[z].Prev_Transaction_id == "1" {
 				ti = z
 				return ti
 			}
@@ -184,11 +184,10 @@ func mainReturnWithCode() {
 		return ti
 	}
 	var jsonFinal chart
-	str := "d933b3b2-a2b9-42dd-934c-739fa31c201c"
-ABAR:
+	var jsonAsTrs AllTx
+	str := "d7036db2-26a4-4174-9e98-36315b3a3d4e"
 	inf := 0
-	var getAll func(string, int, AllTx) AllTx
-	getAll = func(str string, ff int, prt AllTx) AllTx {
+	getAll := func(str string, ff int, prt AllTx) (AllTx, int) {
 		var at Transaction
 		var lst int
 		var ttr, tii string
@@ -200,7 +199,7 @@ ABAR:
 		at, _ = findIndex(str, trans)
 
 		if ttr == "1" {
-			prt.TXs = append(prt.TXs, trans.TXs[ff])
+			//prt.TXs = append(prt.TXs, trans.TXs[ff])
 			if count < 1 {
 				str, _, tii = getPrev(ttr, "")
 				count++
@@ -216,41 +215,37 @@ ABAR:
 			lst = inField(tii, trans)
 			inf = lst
 			prt.TXs = append(prt.TXs, trans.TXs[lst])
-			return prt
+			return prt, inf
 		}
-		inf = 0
-		return prt
+		return prt, inf
 
 	}
+ABAR:
 
-	//jsonAsTr := getAll(str, 0, founded)
-
-	jsonAsTrs := getAll(str, 0, founded)
+	jsonAsTrs, inf = getAll(str, 0, founded)
 
 	jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTrs)
 	q = inf
-
+	fmt.Println(q)
 	if q > 0 {
-
-		//jsonAsTr := getAll(str, 0, founded)
 		to := trans.TXs[q].Id
 		td := trans.TXs[q-1].Id
-		fmt.Println(to)
-		fmt.Println(td)
+
 		if to == td {
 			foun.TXs = append(foun.TXs, trans.TXs[q])
-			jsonAsTr := getAll(trans.TXs[q].Prev_Transaction_id, 1, founded)
+			jsonAsTr, inf1 := getAll(trans.TXs[q].Prev_Transaction_id, 1, founded)
 
 			jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
 
 			foun.TXs = append(foun.TXs, trans.TXs[q-1])
 			//g := findLast(trans.TXs[q-1].Prev_Transaction_id, trans.TXs[q-1].Id)
-			jsonAsTr = getAll(trans.TXs[q-1].Prev_Transaction_id, 4, founded)
-			//fmt.Println(g)
+			jsonAsTr, _ = getAll(trans.TXs[q-1].Prev_Transaction_id, 4, founded)
+			fmt.Println(inf1)
 			jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
-			r := inf
 			str, _, _ = getPrev(str, "")
-			if r > 0 {
+			fmt.Println(to)
+			fmt.Println(td)
+			if str != "false" {
 				goto ABAR
 			}
 		} else {
