@@ -235,7 +235,8 @@ ABAR:
 		//jsonAsTr := getAll(str, 0, founded)
 		to := trans.TXs[q].Id
 		td := trans.TXs[q-1].Id
-		fmt.Println(q)
+		fmt.Println(to)
+		fmt.Println(td)
 		if to == td {
 			foun.TXs = append(foun.TXs, trans.TXs[q])
 			jsonAsTr := getAll(trans.TXs[q].Prev_Transaction_id, 1, founded)

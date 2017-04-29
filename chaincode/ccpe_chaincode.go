@@ -314,7 +314,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			z := 0
 			for z < rn {
 
-				if ssd == trans.TXs[z].Id && trans.TXs[z].Prev_Transaction_id == "1" {
+				if trans.TXs[z].Id == ssd && trans.TXs[z].Prev_Transaction_id == "1" {
 					ti = z
 					return ti
 				}
@@ -368,7 +368,6 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			//jsonAsTr := getAll(str, 0, founded)
 			to := trans.TXs[q].Id
 			td := trans.TXs[q-1].Id
-			fmt.Println(q)
 			if to == td {
 				foun.TXs = append(foun.TXs, trans.TXs[q])
 				jsonAsTr := getAll(trans.TXs[q].Prev_Transaction_id, 1, founded)
