@@ -338,9 +338,9 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			at, _ = findIndex(str, trans)
 
 			if ttr == "1" {
-				//prt.TXs = append(prt.TXs, trans.TXs[ff])
+				str, _, tii = getPrev(ttr, "")
+				prt.TXs = append(prt.TXs, trans.TXs[ff])
 				if count < 1 {
-					str, _, tii = getPrev(ttr, "")
 					count++
 					goto T
 				}
@@ -365,28 +365,20 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 
 		jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTrs)
 		q = inf
-		fmt.Println(q)
+
 		if q > 0 {
 			to := trans.TXs[q].Id
 			td := trans.TXs[q-1].Id
 
 			if to == td {
 				foun.TXs = append(foun.TXs, trans.TXs[q])
-				jsonAsTr, inf1 := getAll(trans.TXs[q].Prev_Transaction_id, 1, founded)
-
+				jsonAsTr, _ := getAll(trans.TXs[q-1].Prev_Transaction_id, 1, founded)
 				jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
-
-				foun.TXs = append(foun.TXs, trans.TXs[q-1])
-				//g := findLast(trans.TXs[q-1].Prev_Transaction_id, trans.TXs[q-1].Id)
-				jsonAsTr, _ = getAll(trans.TXs[q-1].Prev_Transaction_id, 4, founded)
-				fmt.Println(inf1)
-				jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
-				str, _, _ = getPrev(str, "")
-				fmt.Println(to)
-				fmt.Println(td)
+				str, _, _ = getPrev(trans.TXs[q].Prev_Transaction_id, "")
 				if str != "false" {
 					goto ABAR
 				}
+
 			} else {
 				goto ONTIM
 			}

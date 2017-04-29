@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -113,20 +114,7 @@ func mainReturnWithCode() {
 		m = "false"
 		tii = ""
 		n = -1
-		if str == "1" && tid != "" {
-			q := 0
-			for l := 0; l < rn; l++ {
-				q++
-				if q > rn {
-					break
-				}
-				if trans.TXs[l].Id == tid {
-					ind = l
-				}
 
-			}
-			return m, ind, tii
-		}
 		resp, err := http.Get("https://eaf64d13f6fc4d5caeacc5be900d20f0-vp0.us.blockchain.ibm.com:5003/transactions/" + str)
 		if err != nil {
 			// handle error
@@ -175,17 +163,30 @@ func mainReturnWithCode() {
 		z := 0
 		for z < rn {
 
-			if "10006" == trans.TXs[z].Id && trans.TXs[z].Prev_Transaction_id == "1" {
-				ti = z
-				return ti
+			a := []byte(ssd)
+			if len(a) > 0 {
+				copy(a[0:], a[1:])
+				a[len(a)-1] = 0 // or the zero value of T
+				a = a[:len(a)-1]
+
+				t, err := strconv.Atoi(string(a))
+				if err != nil {
+					fmt.Println(err)
+				}
+				tm, _ := strconv.Atoi(trans.TXs[z].Id)
+				if t == tm && trans.TXs[z].Prev_Transaction_id == "1" {
+					ti = z
+					return ti
+				}
 			}
+
 			z++
 		}
 		return ti
 	}
 	var jsonFinal chart
 	var jsonAsTrs AllTx
-	str := "d7036db2-26a4-4174-9e98-36315b3a3d4e"
+	str := "d2d85ef1-8611-4d8f-a0af-6d8ec7b5657d"
 	inf := 0
 	getAll := func(str string, ff int, prt AllTx) (AllTx, int) {
 		var at Transaction
@@ -199,9 +200,9 @@ func mainReturnWithCode() {
 		at, _ = findIndex(str, trans)
 
 		if ttr == "1" {
-			//prt.TXs = append(prt.TXs, trans.TXs[ff])
+			str, _, tii = getPrev(ttr, "")
+			prt.TXs = append(prt.TXs, trans.TXs[ff])
 			if count < 1 {
-				str, _, tii = getPrev(ttr, "")
 				count++
 				goto T
 			}
@@ -226,28 +227,20 @@ ABAR:
 
 	jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTrs)
 	q = inf
-	fmt.Println(q)
+
 	if q > 0 {
 		to := trans.TXs[q].Id
 		td := trans.TXs[q-1].Id
 
 		if to == td {
 			foun.TXs = append(foun.TXs, trans.TXs[q])
-			jsonAsTr, inf1 := getAll(trans.TXs[q].Prev_Transaction_id, 1, founded)
-
+			jsonAsTr, _ := getAll(trans.TXs[q-1].Prev_Transaction_id, 1, founded)
 			jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
-
-			foun.TXs = append(foun.TXs, trans.TXs[q-1])
-			//g := findLast(trans.TXs[q-1].Prev_Transaction_id, trans.TXs[q-1].Id)
-			jsonAsTr, _ = getAll(trans.TXs[q-1].Prev_Transaction_id, 4, founded)
-			fmt.Println(inf1)
-			jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
-			str, _, _ = getPrev(str, "")
-			fmt.Println(to)
-			fmt.Println(td)
+			str, _, _ = getPrev(trans.TXs[q].Prev_Transaction_id, "")
 			if str != "false" {
 				goto ABAR
 			}
+
 		} else {
 			goto ONTIM
 		}
