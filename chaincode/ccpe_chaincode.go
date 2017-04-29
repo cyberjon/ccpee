@@ -314,10 +314,23 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			z := 0
 			for z < rn {
 
-				if trans.TXs[z].Id == ssd && trans.TXs[z].Prev_Transaction_id == "1" {
-					ti = z
-					return ti
+				a := []byte(ssd)
+				if len(a) > 0 {
+					copy(a[0:], a[1:])
+					a[len(a)-1] = 0 // or the zero value of T
+					a = a[:len(a)-1]
+
+					t, err := strconv.Atoi(string(a))
+					if err != nil {
+						fmt.Println(err)
+					}
+					tm, _ := strconv.Atoi(trans.TXs[z].Id)
+					if t == tm && trans.TXs[z].Prev_Transaction_id == "1" {
+						ti = z
+						return ti
+					}
 				}
+
 				z++
 			}
 			return ti
