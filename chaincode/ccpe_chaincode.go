@@ -325,8 +325,9 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		var jsonFinal chart
 		str := args[1]
 		inf := 0
+		var getAll func(string, int, AllTx) AllTx
 	ABAR:
-		getAll := func(str string, ff int, prt AllTx) AllTx {
+		getAll = func(str string, ff int, prt AllTx) AllTx {
 			var at Transaction
 			var lst int
 			var ttr, tii string

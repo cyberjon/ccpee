@@ -175,7 +175,7 @@ func mainReturnWithCode() {
 		z := 0
 		for z < rn {
 
-			if ssd == "0006" && trans.TXs[z].Prev_Transaction_id == "1" {
+			if ssd == ssd && trans.TXs[z].Prev_Transaction_id == "1" {
 				ti = z
 				return ti
 			}
@@ -184,7 +184,7 @@ func mainReturnWithCode() {
 		return ti
 	}
 	var jsonFinal chart
-	str := "7fada347-3a7c-4e20-ac86-a119c13df40e"
+	str := "d933b3b2-a2b9-42dd-934c-739fa31c201c"
 ABAR:
 	inf := 0
 	var getAll func(string, int, AllTx) AllTx
