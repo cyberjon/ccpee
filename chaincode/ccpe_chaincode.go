@@ -307,7 +307,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			return m, n, tii
 
 		}
-		//var inField func(string, AllTx) int
+
 		inField := func(ssd string, trans AllTx) int {
 			var ti int
 
@@ -317,7 +317,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 				a := []byte(ssd)
 				if len(a) > 0 {
 					copy(a[0:], a[1:])
-					a[len(a)-1] = 0 // or the zero value of T
+					a[len(a)-1] = 0
 					a = a[:len(a)-1]
 
 					t, err := strconv.Atoi(string(a))
