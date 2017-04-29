@@ -186,7 +186,7 @@ func mainReturnWithCode() {
 	}
 	var jsonFinal chart
 	var jsonAsTrs AllTx
-	str := "d2d85ef1-8611-4d8f-a0af-6d8ec7b5657d"
+	str := "944c3731-8a19-441f-868e-c21c0e73c55a"
 	inf := 0
 	getAll := func(str string, ff int, prt AllTx) (AllTx, int) {
 		var at Transaction
@@ -221,6 +221,7 @@ func mainReturnWithCode() {
 		return prt, inf
 
 	}
+	str, _, _ = getPrev(str, "")
 ABAR:
 
 	jsonAsTrs, inf = getAll(str, 0, founded)
