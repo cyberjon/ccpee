@@ -1,0 +1,120 @@
+	findLast := func(string, string) (int) {
+		var y int
+		H:
+			pr := getPrev(str)
+			if pr == "1" {
+				y = inField(pr, id)
+				return y
+			} else {
+				str = pr
+				goto H
+			}
+
+		}
+		return y
+	}
+
+
+
+
+
+
+		var at Transaction
+		var ttr string
+		count := 0
+		ttr = str
+
+	T:
+		at = findIndex(str, trans)
+
+		if ttr == "1" {
+			prt.TXs = trans.TXs[ff].Id
+			if count < 1 {
+				count++
+				goto T
+			}
+		} else if at.Prev_Transaction_id != "" {
+			str, _ = getPrev(str)
+			prt.TXs = at.Id
+			goto T
+		}
+		prt.TXs = append(prt.TXs, trans.TXs[ff])
+		return prt
+
+
+
+
+
+
+
+
+
+
+
+		for i <= rng {
+
+			trid, err := strconv.Atoi(trans.TXs[i].Id)
+			prid, err := strconv.Atoi(trans.TXs[i].Prev_Transaction_id)
+			//aro := rng
+			if prid == 1 {
+				if err != nil {
+					return nil, err
+				}
+
+				founded.TXs = append(founded.TXs, trans.TXs[i])
+				i++
+
+				goto L
+			} else {
+
+				if trid == aro {
+
+					founded.TXs = append(founded.TXs, trans.TXs[i])
+					jsonAsBytes, _ := json.Marshal(founded)
+					return jsonAsBytes, nil
+
+				} else {
+
+					founded.TXs = append(founded.TXs, trans.TXs[i])
+
+				}
+			}
+			i++
+		}
+		
+		
+		
+		base64.StdEncoding.DecodeString(str)
+		
+		http://148.100.4.235:7050/transactions/e6a8bab8-c616-401e-ac54-c647dcc7f6aa/
+		
+		
+		
+		func (t *SimpleChaincode) getid(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+			var tID = args[0]
+			resp, err := http.Get("https://eaf64d13f6fc4d5caeacc5be900d20f0-vp0.us.blockchain.ibm.com:5003/transactions/" + tID)
+			if err != nil {
+				// handle error
+			}
+			defer resp.Body.Close()
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				log.Fatal(err)
+			}
+			byteArray := []byte(body)
+			var t Transact
+			json.Unmarshal(byteArray, &t)
+			st, err := base64.StdEncoding.DecodeString(t.Payload)
+			if err != nil {
+				log.Fatal(err)
+			}
+			trd := string(st)
+			sp1 := strings.Replace(trd, "\n", " ", -1)
+
+			sp := strings.Split(sp1, "\x20")
+			jsonAsBy := []byte(sp[3])
+			return jsonAsBy, nil
+		}
+		
+		
+		

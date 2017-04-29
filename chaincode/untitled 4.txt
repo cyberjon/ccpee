@@ -1,0 +1,58 @@
+		response, err := http.Get("http://148.100.4.235:7050/transactions/e6a8bab8-c616-401e-ac54-c647dcc7f6aa")
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			defer response.Body.Close()
+			_, err := io.Copy(os.Stdout, response.Body)
+			if err != nil {
+				s := err.Error()
+				byteArray := []byte(s)
+				var t Transact
+				json.Unmarshal(byteArray, &t)
+				//fmt.Println(t.Payload)
+			}
+		}
+		
+		
+		
+		Bid                 string `json:"bid"` //Transaction ID from cppe system
+		Fun                 string `json:"fu"`
+		Id                  string `json:"id"` //Transaction ID from cppe system
+		Timestamp           string `json:"ts"` //utc timestamp of creation
+		TraderA             string `json:"ta"` //UserA ID
+		TraderB             string `json:"tb"` //UserB ID
+		Seller              string `json:"sl"` //UserA's Seller ID
+		Point_Amount        string `json:"pa"` //Points owned by UserA after exchange
+		Prev_Transaction_id string `json:"pti"`
+		
+		
+		{\"tx\":[{\"txID\":\"58\",\"EX_TIME\":\"2945454\",\"USER_A_ID\":\"gedu\",\"USER_B_ID\":\"telu\",\"SELLER_ID\":\"Apple\",\"POINT_AMOUNT\":\"43\",\"PREV_TR_ID\":\"1\"},{\"txID\":\"59\",\"EX_TIME\":\"2945454\",\"USER_A_ID\":\"gedu\",\"USER_B_ID\":\"telu\",\"SELLER_ID\":\"Apple\",\"POINT_AMOUNT\":\"43\",\"PREV_TR_ID\":\"4c7a4c46-a664-466d-9e7e-9abac7aff22f\"},{\"txID\":\"60\",\"EX_TIME\":\"2945454\",\"USER_A_ID\":\"gedu\",\"USER_B_ID\":\"telu\",\"SELLER_ID\":\"Apple\",\"POINT_AMOUNT\":\"43\",\"PREV_TR_ID\":\"2f7bfc8b-276f-4cdd-8111-88b5d61a8cfa\"},{\"txID\":\"61\",\"EX_TIME\":\"2945454\",\"USER_A_ID\":\"gedu\",\"USER_B_ID\":\"telu\",\"SELLER_ID\":\"Apple\",\"POINT_AMOUNT\":\"43\",\"PREV_TR_ID\":\"e7527510-30b7-47aa-a193-704e5c4ae0b2\"},{\"txID\":\"62\",\"EX_TIME\":\"2945454\",\"USER_A_ID\":\"gedu\",\"USER_B_ID\":\"telu\",\"SELLER_ID\":\"Apple\",\"POINT_AMOUNT\":\"43\",\"PREV_TR_ID\":\"d1bf1aef-becd-4fe0-be52-c1e0a63eb3db\"},{\"txID\":\"63\",\"EX_TIME\":\"2945454\",\"USER_A_ID\":\"gedu\",\"USER_B_ID\":\"telu\",\"SELLER_ID\":\"Apple\",\"POINT_AMOUNT\":\"43\",\"PREV_TR_ID\":\"82a4f4e3-72bf-4cc1-9af5-6f25c24faf5e\"}]}"
+		
+		35c70a3b-a42b-4ceb-9a27-a6a0236fedc7
+		
+		
+		82a4f4e3-72bf-4cc1-9af5-6f25c24faf5e
+		5feb54ee-7495-4e14-ac8c-0e92410a72ff
+		e15c9f70-f7db-4bd6-bc88-6f723b343279
+		
+		b404fbfa-5d00-465f-b8d8-7299eff914b8
+		
+		
+		
+		ca237b10-c629-4dc5-adfb-c6c65d6014f2
+		
+		
+		
+		
+		
+		0c7667382593f680ddd0f1408af2833d0f94d0b612140ed5260e4171aa9bf7982fc0596be54ab367a1426e270d4bacec269a16382a4f916768423c847e7b44ca
+		
+		b294503f-5440-4128-a927-5fe5788c251a
+		
+		
+		"{\"tx\":[{\"txID\":\"61\",\"EX_TIME\":\"2945454\",\"USER_A_ID\":\"gedu\",\"USER_B_ID\":\"telu\",\"SELLER_ID\":\"Apple\",\"POINT_AMOUNT\":\"43\",\"PREV_TR_ID\":\"1\"},{\"txID\":\"62\",\"EX_TIME\":\"2945454\",\"USER_A_ID\":\"gedu\",\"USER_B_ID\":\"telu\",\"SELLER_ID\":\"Apple\",\"POINT_AMOUNT\":\"43\",\"PREV_TR_ID\":\"65c18599-ec99-4b29-9242-99a646fc303f\"},{\"txID\":\"63\",\"EX_TIME\":\"2945454\",\"USER_A_ID\":\"gedu\",\"USER_B_ID\":\"telu\",\"SELLER_ID\":\"Apple\",\"POINT_AMOUNT\":\"43\",\"PREV_TR_ID\":\"3e08abe7-2e12-4194-93e3-6fd8f68c9a49\"},{\"txID\":\"64\",\"EX_TIME\":\"2945454\",\"USER_A_ID\":\"gedu\",\"USER_B_ID\":\"telu\",\"SELLER_ID\":\"Apple\",\"POINT_AMOUNT\":\"43\",\"PREV_TR_ID\":\"1ce5345f-7664-4392-97d7-9029862b7732\"},{\"txID\":\"64\",\"EX_TIME\":\"2945454\",\"USER_A_ID\":\"gedu\",\"USER_B_ID\":\"telu\",\"SELLER_ID\":\"Apple\",\"POINT_AMOUNT\":\"43\",\"PREV_TR_ID\":\"9c159650-7ac1-4eed-ae98-e4554e011365\"},{\"txID\":\"64\",\"EX_TIME\":\"2945454\",\"USER_A_ID\":\"gedu\",\"USER_B_ID\":\"telu\",\"SELLER_ID\":\"Apple\",\"POINT_AMOUNT\":\"43\",\"PREV_TR_ID\":\"859a0291-360c-4b72-90e2-cb9e046beaad\"},{\"txID\":\"65\",\"EX_TIME\":\"2945454\",\"USER_A_ID\":\"gedu\",\"USER_B_ID\":\"telu\",\"SELLER_ID\":\"Apple\",\"POINT_AMOUNT\":\"43\",\"PREV_TR_ID\":\"10bc347c-188c-47aa-b21a-fac55c8b01db\"},{\"txID\":\"66\",\"EX_TIME\":\"2945454\",\"USER_A_ID\":\"gedu\",\"USER_B_ID\":\"telu\",\"SELLER_ID\":\"Apple\",\"POINT_AMOUNT\":\"43\",\"PREV_TR_ID\":\"688666f9-8786-474b-add2-8c723262228f\"}]}"
+		
+		
+		
+		1bc6cbb7-f661-461f-91e6-5688d4e7f273
+		

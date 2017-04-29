@@ -338,7 +338,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			at, _ = findIndex(str, trans)
 
 			if ttr == "1" {
-				//prt.TXs = append(prt.TXs, trans.TXs[ff])
+				prt.TXs = append(prt.TXs, trans.TXs[ff])
 				if count < 1 {
 					str, _, tii = getPrev(ttr, "")
 					count++

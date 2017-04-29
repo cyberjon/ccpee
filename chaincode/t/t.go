@@ -175,7 +175,7 @@ func mainReturnWithCode() {
 		z := 0
 		for z < rn {
 
-			if ssd == trans.TXs[z].Id && trans.TXs[z].Prev_Transaction_id == "1" {
+			if ssd == "0006" && trans.TXs[z].Prev_Transaction_id == "1" {
 				ti = z
 				return ti
 			}
