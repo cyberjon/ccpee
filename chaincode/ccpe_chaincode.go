@@ -381,6 +381,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 				jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
 				r := inf
 				if r > 0 {
+					str, _, _ = getPrev(str, "")
 					goto ABAR
 				}
 			} else {
