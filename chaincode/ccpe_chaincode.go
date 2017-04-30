@@ -369,11 +369,11 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 
 					if to == td {
 						getBranch(str, prt, q)
-						lt--
+						//lt--
 						return prt, inf
 					} else {
 						str, _, tii = getPrev(str, "")
-						lt--
+						//lt--
 						prt.TXs = append(prt.TXs, at)
 						goto T
 
@@ -392,7 +392,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 
 				inf = lst
 
-				prt.TXs = append(prt.TXs, trans.TXs[lt])
+				prt.TXs = append(prt.TXs, trans.TXs[lst])
 
 				return prt, inf
 			}
