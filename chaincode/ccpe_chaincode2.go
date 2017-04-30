@@ -291,7 +291,51 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			}
 			return prid, ind, tn
 		}
+<<<<<<< Updated upstream
 		return m, n, tii
+=======
+		getPrev := func(str string, tid string) (string, int, string) {
+			var m, tii string
+			var ind, n int
+			m = "false"
+			tii = ""
+			n = -1
+
+			resp, err := http.Get("https://3bdbeca04a864ccd8530ed61cecd741a-vp0.us.blockchain.ibm.com:5003/transactions/" + str)
+			if err != nil {
+				// handle error
+			}
+			defer resp.Body.Close()
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				log.Fatal(err)
+			}
+			byteArray := []byte(body)
+			var t Transact
+			json.Unmarshal(byteArray, &t)
+			st, err := base64.StdEncoding.DecodeString(t.Payload)
+			if err != nil {
+				log.Fatal(err)
+			}
+			trd := string(st)
+			sp1 := strings.Replace(trd, "\n", " ", -1)
+			sp := strings.Split(sp1, "\x20")
+			rpl := strings.NewReplacer("$", "",
+				`%`, "")
+			if len(trd) > 0 {
+				prid = rpl.Replace(sp[8])
+				tn := sp[3]
+
+				t := 0
+				for i := 0; i < rn; i++ {
+					t++
+					if t > rn {
+						break
+					}
+					if trans.TXs[i].Id == tn {
+						ind = i
+					}
+>>>>>>> Stashed changes
 
 	}
 	//var inField func(string, AllTx) int
@@ -345,6 +389,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		if ls == ff {
 			lt = ls - 2
 		}
+<<<<<<< Updated upstream
 
 		if ttr == "1" {
 			str, _, tii = getPrev(str, "")
@@ -355,15 +400,67 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 				goto T
 			}
 			return prt, inf
+=======
+		var jsonFinal chart
+		var jsonAs []byte
+		var jsonAsTrs AllTx
+		//var jsonAsTr AllTx
+		var getBranch func(string, AllTx, int)
+		str := "4c1da8f5-4c76-473c-ad86-a08cfb5582d8"
+		inf := 0
+		var ls, lt int
+
+		getAll := func(str string, ff int, prt AllTx) (AllTx, int) {
+			var at Transaction
+			var lst int
+
+			var tii string
+			tii = ""
+			count := 0
+			ttr := str
+
+		T:
+			at, ls = findIndex(str, trans)
+			if ls == ff {
+<<<<<<< HEAD
+				lt = ls - 2
+=======
+				fmt.Println(str)
+				fmt.Println(lt)
+>>>>>>> origin/master
+			}
+
+			if ttr == "1" {
+				str, _, tii = getPrev(str, "")
+
+				if count < 1 {
+					prt.TXs = append(prt.TXs, trans.TXs[ff])
+					count++
+					goto T
+				}
+				return prt, inf
+
+			} else if at.Prev_Transaction_id != "" {
+>>>>>>> Stashed changes
 
 		} else if at.Prev_Transaction_id != "" {
 
 			lst = inField(tii, str, trans)
 
+<<<<<<< Updated upstream
 			q = lst
 			if q > 0 {
 				to := trans.TXs[q].Id
 				td := trans.TXs[q-1].Id
+=======
+					if to == td {
+						getBranch(str, prt, q)
+						return prt, inf
+					} else {
+						str, _, tii = getPrev(str, "")
+						prt.TXs = append(prt.TXs, at)
+						goto T
+>>>>>>> Stashed changes
 
 				if to == td {
 					getBranch(str, prt, q)
@@ -382,8 +479,12 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 
 			}
 
+<<<<<<< Updated upstream
 		} else {
 			lst = inField(tii, str, trans)
+=======
+				prt.TXs = append(prt.TXs, trans.TXs[ff])
+>>>>>>> Stashed changes
 
 			inf = lst
 
@@ -393,6 +494,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		}
 		return prt, inf
 
+<<<<<<< Updated upstream
 	}
 	getBranch = func(str string, jsonAsTr AllTx, q int) {
 		if q > 0 {
@@ -412,6 +514,21 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 				// fmt.Println(string(jsonAs))
 				// 				fmt.Println("----------------------")
 				return
+=======
+					jsonAsTr, _ = getAll(trans.TXs[q].Prev_Transaction_id, q, founded)
+					jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
+					// jsonAs, _ = json.Marshal(jsonFinal)
+					// 				fmt.Println(string(jsonAs))
+					// 				fmt.Println("----------------------")
+					jsonAsTr, _ = getAll(trans.TXs[q-1].Prev_Transaction_id, q-1, founded)
+					jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
+					jsonAs, _ = json.Marshal(jsonFinal)
+					// fmt.Println(string(jsonAs))
+					// 				fmt.Println("----------------------")
+					return
+				}
+				q--
+>>>>>>> Stashed changes
 			}
 			q--
 		}
@@ -422,9 +539,14 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 
 	jsonAsTrs, inf = getAll(str, 0, founded)
 
+<<<<<<< Updated upstream
 	jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTrs)
 	// q = inf
 	jsonAsBy, _ := json.Marshal(jsonFinal)
+=======
+		jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTrs)
+		jsonAsBy, _ := json.Marshal(jsonFinal)
+>>>>>>> Stashed changes
 		return jsonAsBy, nil
 	} else if fun == "findLatestBySeller" {
 		if len(args) != 3 {

@@ -115,7 +115,7 @@ func mainReturnWithCode() {
 		tii = ""
 		n = -1
 
-		resp, err := http.Get("https://a8884cdbb919483eb8e9a57a3a85fbe1-vp0.us.blockchain.ibm.com:5002/transactions/" + str)
+		resp, err := http.Get("https://3bdbeca04a864ccd8530ed61cecd741a-vp0.us.blockchain.ibm.com:5003/transactions/" + str)
 		if err != nil {
 			// handle error
 		}
@@ -185,10 +185,11 @@ func mainReturnWithCode() {
 		return ti
 	}
 	var jsonFinal chart
+	var jsonAs []byte
 	var jsonAsTrs AllTx
 	//var jsonAsTr AllTx
 	var getBranch func(string, AllTx, int)
-	str := "3288e63b-c8db-4b94-b1b2-96bbc89d6adf"
+	str := "4c1da8f5-4c76-473c-ad86-a08cfb5582d8"
 	inf := 0
 	var ls, lt int
 
@@ -199,25 +200,22 @@ func mainReturnWithCode() {
 		var tii string
 		tii = ""
 		count := 0
+		ttr := str
 
 	T:
 		at, ls = findIndex(str, trans)
 		if ls == ff {
 			lt = ls - 2
-			fmt.Println(str)
-			fmt.Println(lt)
 		}
 
-		if str == "1" {
+		if ttr == "1" {
 			str, _, tii = getPrev(str, "")
 
-			fmt.Println(ls)
 			if count < 1 {
 				prt.TXs = append(prt.TXs, trans.TXs[ff])
 				count++
 				goto T
 			}
-
 			return prt, inf
 
 		} else if at.Prev_Transaction_id != "" {
@@ -231,11 +229,9 @@ func mainReturnWithCode() {
 
 				if to == td {
 					getBranch(str, prt, q)
-					lt--
 					return prt, inf
 				} else {
 					str, _, tii = getPrev(str, "")
-					lt--
 					prt.TXs = append(prt.TXs, at)
 					goto T
 
@@ -243,7 +239,6 @@ func mainReturnWithCode() {
 				q--
 			} else {
 				str, _, tii = getPrev(str, "")
-				//lt--
 				prt.TXs = append(prt.TXs, at)
 				goto T
 
@@ -254,7 +249,7 @@ func mainReturnWithCode() {
 
 			inf = lst
 
-			prt.TXs = append(prt.TXs, trans.TXs[lt])
+			prt.TXs = append(prt.TXs, trans.TXs[lst])
 
 			return prt, inf
 		}
@@ -270,9 +265,14 @@ func mainReturnWithCode() {
 
 				jsonAsTr, _ = getAll(trans.TXs[q].Prev_Transaction_id, q, founded)
 				jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
-
+				// jsonAs, _ = json.Marshal(jsonFinal)
+				// 				fmt.Println(string(jsonAs))
+				// 				fmt.Println("----------------------")
 				jsonAsTr, _ = getAll(trans.TXs[q-1].Prev_Transaction_id, q-1, founded)
 				jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
+				jsonAs, _ = json.Marshal(jsonFinal)
+				// fmt.Println(string(jsonAs))
+				// 				fmt.Println("----------------------")
 				return
 			}
 			q--
