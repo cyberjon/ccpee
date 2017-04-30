@@ -252,6 +252,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			m = "false"
 			tii = ""
 			n = -1
+
 			resp, err := http.Get("https://a8884cdbb919483eb8e9a57a3a85fbe1-vp0.us.blockchain.ibm.com:5002/transactions/" + str)
 			if err != nil {
 				// handle error
@@ -293,12 +294,12 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			return m, n, tii
 
 		}
-
-		inField := func(ssd string, trans AllTx) int {
+		//var inField func(string, AllTx) int
+		inField := func(ssd string, spd string, trans AllTx) int {
 			var ti int
 
-			z := 0
-			for z < rn {
+			z := rn - 1
+			for z >= 0 {
 
 				a := []byte(ssd)
 				if len(a) > 0 {
@@ -311,80 +312,118 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 						fmt.Println(err)
 					}
 					tm, _ := strconv.Atoi(trans.TXs[z].Id)
-					if t == tm && trans.TXs[z].Prev_Transaction_id == "1" {
+					if t == tm && spd == trans.TXs[z].Prev_Transaction_id {
 						ti = z
 						return ti
 					}
 				}
 
-				z++
+				z--
 			}
 			return ti
 		}
 		var jsonFinal chart
 		var jsonAsTrs AllTx
-		str := args[1]
+		//var jsonAsTr AllTx
+		var getBranch func(string, AllTx, int)
+		str := "3288e63b-c8db-4b94-b1b2-96bbc89d6adf"
 		inf := 0
+		var ls, lt int
+
 		getAll := func(str string, ff int, prt AllTx) (AllTx, int) {
 			var at Transaction
 			var lst int
-			var ttr, tii string
+
+			var tii string
 			tii = ""
 			count := 0
-			ttr = str
 
 		T:
-			at, _ = findIndex(str, trans)
+			at, ls = findIndex(str, trans)
+			if ls == ff {
+				lt = ls - 2
+				fmt.Println(str)
+				fmt.Println(lt)
+			}
 
-			if ttr == "1" {
-				str, _, tii = getPrev(ttr, "")
-				prt.TXs = append(prt.TXs, trans.TXs[ff])
+			if str == "1" {
+				str, _, tii = getPrev(str, "")
+
+				fmt.Println(ls)
 				if count < 1 {
+					prt.TXs = append(prt.TXs, trans.TXs[ff])
 					count++
 					goto T
 				}
 
+				return prt, inf
+
 			} else if at.Prev_Transaction_id != "" {
-				str, _, tii = getPrev(str, "")
-				prt.TXs = append(prt.TXs, at)
-				goto T
+
+				lst = inField(tii, str, trans)
+
+				q = lst
+				if q > 0 {
+					to := trans.TXs[q].Id
+					td := trans.TXs[q-1].Id
+
+					if to == td {
+						getBranch(str, prt, q)
+						lt--
+						return prt, inf
+					} else {
+						str, _, tii = getPrev(str, "")
+						lt--
+						prt.TXs = append(prt.TXs, at)
+						goto T
+
+					}
+					q--
+				} else {
+					str, _, tii = getPrev(str, "")
+					//lt--
+					prt.TXs = append(prt.TXs, at)
+					goto T
+
+				}
 
 			} else {
-				lst = inField(tii, trans)
+				lst = inField(tii, str, trans)
+
 				inf = lst
-				prt.TXs = append(prt.TXs, trans.TXs[lst])
+
+				prt.TXs = append(prt.TXs, trans.TXs[lt])
+
 				return prt, inf
 			}
 			return prt, inf
 
 		}
+		getBranch = func(str string, jsonAsTr AllTx, q int) {
+			if q > 0 {
+				to := trans.TXs[q].Id
+				td := trans.TXs[q-1].Id
+				if to == td {
+					foun.TXs = append(foun.TXs, trans.TXs[q])
+
+					jsonAsTr, _ = getAll(trans.TXs[q].Prev_Transaction_id, q, founded)
+					jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
+
+					jsonAsTr, _ = getAll(trans.TXs[q-1].Prev_Transaction_id, q-1, founded)
+					jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
+					return
+				}
+				q--
+			}
+			return
+		}
+
 		str, _, _ = getPrev(str, "")
-	ABAR:
 
 		jsonAsTrs, inf = getAll(str, 0, founded)
 
 		jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTrs)
-		q = inf
-
-		if q > 0 {
-			to := trans.TXs[q].Id
-			td := trans.TXs[q-1].Id
-
-			if to == td {
-				foun.TXs = append(foun.TXs, trans.TXs[q])
-				jsonAsTr, _ := getAll(trans.TXs[q-1].Prev_Transaction_id, 1, founded)
-				jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
-				str, _, _ = getPrev(trans.TXs[q].Prev_Transaction_id, "")
-				if str != "false" {
-					goto ABAR
-				}
-
-			} else {
-				goto ONTIM
-			}
-			q--
-		}
-	ONTIM:
+		// q = inf
 		jsonAsBy, _ := json.Marshal(jsonFinal)
 		return jsonAsBy, nil
 	} else if fun == "findLatestBySeller" {
