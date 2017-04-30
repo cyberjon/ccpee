@@ -217,83 +217,35 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		// Read that structure for Transaction Index
 		json.Unmarshal(txAsbytes, &trans)
 		rn := len(trans.TXs)
-	var founded AllTx
-	var foun AllTx
-	//var jsonAsByte byte
-	for q < rn-1 {
-		to := trans.TXs[q].Id
-		td := trans.TXs[q+1].Id
-		if to == td {
-			foun.TXs = append(foun.TXs, trans.TXs[q])
+		var founded AllTx
+		var foun AllTx
+		//var jsonAsByte byte
+		for q < rn-1 {
+			to := trans.TXs[q].Id
+			td := trans.TXs[q+1].Id
+			if to == td {
+				foun.TXs = append(foun.TXs, trans.TXs[q])
 
-			foun.TXs = append(foun.TXs, trans.TXs[q+1])
-		}
-		q++
-	}
-	//vn := len(foun.TXs)
-	findIndex := func(str string, trans AllTx) (Transaction, int) {
-		var q Transaction
-		t := 0
-		for i := 0; i < rn; i++ {
-			t++
-			if t > rn {
-				break
+				foun.TXs = append(foun.TXs, trans.TXs[q+1])
 			}
-			if trans.TXs[i].Prev_Transaction_id == str {
-				return trans.TXs[i], i
-			}
-
+			q++
 		}
-		return q, -2
-	}
-	getPrev := func(str string, tid string) (string, int, string) {
-		var m, tii string
-		var ind, n int
-		m = "false"
-		tii = ""
-		n = -1
-
-		resp, err := http.Get("https://3bdbeca04a864ccd8530ed61cecd741a-vp0.us.blockchain.ibm.com:5003/transactions/" + str)
-		if err != nil {
-			// handle error
-		}
-		defer resp.Body.Close()
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			log.Fatal(err)
-		}
-		byteArray := []byte(body)
-		var t Transact
-		json.Unmarshal(byteArray, &t)
-		st, err := base64.StdEncoding.DecodeString(t.Payload)
-		if err != nil {
-			log.Fatal(err)
-		}
-		trd := string(st)
-		sp1 := strings.Replace(trd, "\n", " ", -1)
-		sp := strings.Split(sp1, "\x20")
-		rpl := strings.NewReplacer("$", "",
-			`%`, "")
-		if len(trd) > 0 {
-			prid = rpl.Replace(sp[8])
-			tn := sp[3]
-
+		//vn := len(foun.TXs)
+		findIndex := func(str string, trans AllTx) (Transaction, int) {
+			var q Transaction
 			t := 0
 			for i := 0; i < rn; i++ {
 				t++
 				if t > rn {
 					break
 				}
-				if trans.TXs[i].Id == tn {
-					ind = i
+				if trans.TXs[i].Prev_Transaction_id == str {
+					return trans.TXs[i], i
 				}
 
 			}
-			return prid, ind, tn
+			return q, -2
 		}
-<<<<<<< Updated upstream
-		return m, n, tii
-=======
 		getPrev := func(str string, tid string) (string, int, string) {
 			var m, tii string
 			var ind, n int
@@ -335,78 +287,47 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 					if trans.TXs[i].Id == tn {
 						ind = i
 					}
->>>>>>> Stashed changes
 
-	}
-	//var inField func(string, AllTx) int
-	inField := func(ssd string, spd string, trans AllTx) int {
-		var ti int
-
-		z := rn - 1
-		for z >= 0 {
-
-			a := []byte(ssd)
-			if len(a) > 0 {
-				copy(a[0:], a[1:])
-				a[len(a)-1] = 0
-				a = a[:len(a)-1]
-
-				t, err := strconv.Atoi(string(a))
-				if err != nil {
-					fmt.Println(err)
 				}
-				tm, _ := strconv.Atoi(trans.TXs[z].Id)
-				if t == tm && spd == trans.TXs[z].Prev_Transaction_id {
-					ti = z
-					return ti
+				return prid, ind, tn
+			}
+			return m, n, tii
+
+		}
+		//var inField func(string, AllTx) int
+		inField := func(ssd string, spd string, trans AllTx) int {
+			var ti int
+
+			z := rn - 1
+			for z >= 0 {
+
+				a := []byte(ssd)
+				if len(a) > 0 {
+					copy(a[0:], a[1:])
+					a[len(a)-1] = 0
+					a = a[:len(a)-1]
+
+					t, err := strconv.Atoi(string(a))
+					if err != nil {
+						fmt.Println(err)
+					}
+					tm, _ := strconv.Atoi(trans.TXs[z].Id)
+					if t == tm && spd == trans.TXs[z].Prev_Transaction_id {
+						ti = z
+						return ti
+					}
 				}
+
+				z--
 			}
-
-			z--
+			return ti
 		}
-		return ti
-	}
-	var jsonFinal chart
-	var jsonAs []byte
-	var jsonAsTrs AllTx
-	//var jsonAsTr AllTx
-	var getBranch func(string, AllTx, int)
-	str := args[1]
-	inf := 0
-	var ls, lt int
-
-	getAll := func(str string, ff int, prt AllTx) (AllTx, int) {
-		var at Transaction
-		var lst int
-
-		var tii string
-		tii = ""
-		count := 0
-		ttr := str
-
-	T:
-		at, ls = findIndex(str, trans)
-		if ls == ff {
-			lt = ls - 2
-		}
-<<<<<<< Updated upstream
-
-		if ttr == "1" {
-			str, _, tii = getPrev(str, "")
-
-			if count < 1 {
-				prt.TXs = append(prt.TXs, trans.TXs[ff])
-				count++
-				goto T
-			}
-			return prt, inf
-=======
 		var jsonFinal chart
 		var jsonAs []byte
 		var jsonAsTrs AllTx
 		//var jsonAsTr AllTx
 		var getBranch func(string, AllTx, int)
-		str := "4c1da8f5-4c76-473c-ad86-a08cfb5582d8"
+		str := args[1]
 		inf := 0
 		var ls, lt int
 
@@ -422,12 +343,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		T:
 			at, ls = findIndex(str, trans)
 			if ls == ff {
-<<<<<<< HEAD
 				lt = ls - 2
-=======
-				fmt.Println(str)
-				fmt.Println(lt)
->>>>>>> origin/master
 			}
 
 			if ttr == "1" {
@@ -441,18 +357,14 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 				return prt, inf
 
 			} else if at.Prev_Transaction_id != "" {
->>>>>>> Stashed changes
 
-		} else if at.Prev_Transaction_id != "" {
+				lst = inField(tii, str, trans)
 
-			lst = inField(tii, str, trans)
+				q = lst
+				if q > 0 {
+					to := trans.TXs[q].Id
+					td := trans.TXs[q-1].Id
 
-<<<<<<< Updated upstream
-			q = lst
-			if q > 0 {
-				to := trans.TXs[q].Id
-				td := trans.TXs[q-1].Id
-=======
 					if to == td {
 						getBranch(str, prt, q)
 						return prt, inf
@@ -460,61 +372,35 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 						str, _, tii = getPrev(str, "")
 						prt.TXs = append(prt.TXs, at)
 						goto T
->>>>>>> Stashed changes
 
-				if to == td {
-					getBranch(str, prt, q)
-					return prt, inf
+					}
+					q--
 				} else {
 					str, _, tii = getPrev(str, "")
 					prt.TXs = append(prt.TXs, at)
 					goto T
 
 				}
-				q--
+
 			} else {
-				str, _, tii = getPrev(str, "")
-				prt.TXs = append(prt.TXs, at)
-				goto T
+				lst = inField(tii, str, trans)
 
+				inf = lst
+
+				prt.TXs = append(prt.TXs, trans.TXs[lst])
+
+				return prt, inf
 			}
-
-<<<<<<< Updated upstream
-		} else {
-			lst = inField(tii, str, trans)
-=======
-				prt.TXs = append(prt.TXs, trans.TXs[ff])
->>>>>>> Stashed changes
-
-			inf = lst
-
-			prt.TXs = append(prt.TXs, trans.TXs[lst])
-
 			return prt, inf
+
 		}
-		return prt, inf
+		getBranch = func(str string, jsonAsTr AllTx, q int) {
+			if q > 0 {
+				to := trans.TXs[q].Id
+				td := trans.TXs[q-1].Id
+				if to == td {
+					foun.TXs = append(foun.TXs, trans.TXs[q])
 
-<<<<<<< Updated upstream
-	}
-	getBranch = func(str string, jsonAsTr AllTx, q int) {
-		if q > 0 {
-			to := trans.TXs[q].Id
-			td := trans.TXs[q-1].Id
-			if to == td {
-				foun.TXs = append(foun.TXs, trans.TXs[q])
-
-				jsonAsTr, _ = getAll(trans.TXs[q].Prev_Transaction_id, q, founded)
-				jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
-				// jsonAs, _ = json.Marshal(jsonFinal)
-				// 				fmt.Println(string(jsonAs))
-				// 				fmt.Println("----------------------")
-				jsonAsTr, _ = getAll(trans.TXs[q-1].Prev_Transaction_id, q-1, founded)
-				jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
-				jsonAs, _ = json.Marshal(jsonFinal)
-				// fmt.Println(string(jsonAs))
-				// 				fmt.Println("----------------------")
-				return
-=======
 					jsonAsTr, _ = getAll(trans.TXs[q].Prev_Transaction_id, q, founded)
 					jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
 					// jsonAs, _ = json.Marshal(jsonFinal)
@@ -528,25 +414,17 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 					return
 				}
 				q--
->>>>>>> Stashed changes
 			}
-			q--
+			return
 		}
-		return
-	}
 
-	str, _, _ = getPrev(str, "")
+		str, _, _ = getPrev(str, "")
 
-	jsonAsTrs, inf = getAll(str, 0, founded)
+		jsonAsTrs, inf = getAll(str, 0, founded)
 
-<<<<<<< Updated upstream
-	jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTrs)
-	// q = inf
-	jsonAsBy, _ := json.Marshal(jsonFinal)
-=======
 		jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTrs)
+		// q = inf
 		jsonAsBy, _ := json.Marshal(jsonFinal)
->>>>>>> Stashed changes
 		return jsonAsBy, nil
 	} else if fun == "findLatestBySeller" {
 		if len(args) != 3 {
