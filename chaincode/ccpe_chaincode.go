@@ -252,20 +252,6 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			m = "false"
 			tii = ""
 			n = -1
-			if str == "1" && tid != "" {
-				q := 0
-				for l := 0; l < rn; l++ {
-					q++
-					if q > rn {
-						break
-					}
-					if trans.TXs[l].Id == tid {
-						ind = l
-					}
-
-				}
-				return m, ind, tii
-			}
 			resp, err := http.Get("https://eaf64d13f6fc4d5caeacc5be900d20f0-vp0.us.blockchain.ibm.com:5003/transactions/" + str)
 			if err != nil {
 				// handle error

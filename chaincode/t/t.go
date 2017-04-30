@@ -186,7 +186,7 @@ func mainReturnWithCode() {
 	}
 	var jsonFinal chart
 	var jsonAsTrs AllTx
-	str := "944c3731-8a19-441f-868e-c21c0e73c55a"
+	str := "8754c70a-6ccf-4fb8-9813-5a5cfbdf2f95"
 	inf := 0
 	getAll := func(str string, ff int, prt AllTx) (AllTx, int) {
 		var at Transaction
