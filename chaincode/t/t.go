@@ -115,7 +115,7 @@ func mainReturnWithCode() {
 		tii = ""
 		n = -1
 
-		resp, err := http.Get("https://eaf64d13f6fc4d5caeacc5be900d20f0-vp0.us.blockchain.ibm.com:5003/transactions/" + str)
+		resp, err := http.Get("https://a8884cdbb919483eb8e9a57a3a85fbe1-vp0.us.blockchain.ibm.com:5002/transactions/" + str)
 		if err != nil {
 			// handle error
 		}
@@ -186,7 +186,7 @@ func mainReturnWithCode() {
 	}
 	var jsonFinal chart
 	var jsonAsTrs AllTx
-	str := "8754c70a-6ccf-4fb8-9813-5a5cfbdf2f95"
+	str := "0ddcbd7f-e09a-45c1-82d7-e5fdc0fccb6a"
 	inf := 0
 	getAll := func(str string, ff int, prt AllTx) (AllTx, int) {
 		var at Transaction
@@ -235,9 +235,9 @@ ABAR:
 
 		if to == td {
 			foun.TXs = append(foun.TXs, trans.TXs[q])
-			jsonAsTr, _ := getAll(trans.TXs[q-1].Prev_Transaction_id, 1, founded)
+			jsonAsTr, _ := getAll(trans.TXs[q].Prev_Transaction_id, 1, founded)
 			jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
-			str, _, _ = getPrev(trans.TXs[q].Prev_Transaction_id, "")
+			str, _, _ = getPrev(trans.TXs[q-1].Prev_Transaction_id, "")
 			if str != "false" {
 				goto ABAR
 			}
