@@ -253,7 +253,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			tii = ""
 			n = -1
 
-			resp, err := http.Get("https://a8884cdbb919483eb8e9a57a3a85fbe1-vp0.us.blockchain.ibm.com:5002/transactions/" + str)
+			resp, err := http.Get("https://3bdbeca04a864ccd8530ed61cecd741a-vp0.us.blockchain.ibm.com:5003/transactions/" + str)
 			if err != nil {
 				// handle error
 			}
@@ -341,7 +341,6 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		T:
 			at, ls = findIndex(str, trans)
 			if ls == ff {
-				lt = ls - 2
 				fmt.Println(str)
 				fmt.Println(lt)
 			}
@@ -369,11 +368,9 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 
 					if to == td {
 						getBranch(str, prt, q)
-						//lt--
 						return prt, inf
 					} else {
 						str, _, tii = getPrev(str, "")
-						//lt--
 						prt.TXs = append(prt.TXs, at)
 						goto T
 
@@ -381,7 +378,6 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 					q--
 				} else {
 					str, _, tii = getPrev(str, "")
-					//lt--
 					prt.TXs = append(prt.TXs, at)
 					goto T
 
@@ -392,7 +388,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 
 				inf = lst
 
-				prt.TXs = append(prt.TXs, trans.TXs[lst])
+				prt.TXs = append(prt.TXs, trans.TXs[ff])
 
 				return prt, inf
 			}
