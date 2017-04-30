@@ -93,28 +93,31 @@ func mainReturnWithCode() {
 		q++
 	}
 	//vn := len(foun.TXs)
-	findIndex := func(str string, trans AllTx) (Transaction, int) {
-		var q Transaction
-		t := 0
-		for i := 0; i < rn; i++ {
-			t++
-			if t > rn {
-				break
-			}
-			if trans.TXs[i].Prev_Transaction_id == str {
-				return trans.TXs[i], i
-			}
-
-		}
-		return q, -2
-	}
+	//var jsonAsTr AllTx
+	var getAll func(string, int, AllTx)
+	// findIndex := func(str string, trans AllTx) (Transaction, int) {
+	// 		var q Transaction
+	// 		t := 0
+	// 		for i := 0; i < rn; i++ {
+	// 			t++
+	// 			if t > rn {
+	// 				break
+	// 			}
+	// 			if trans.TXs[i].Prev_Transaction_id == str {
+	// 				return trans.TXs[i], i
+	// 			}
+	//
+	// 		}
+	// 		return q, -2
+	// 	}
 	getPrev := func(str string, tid string) (string, int, string) {
 		var m, tii string
 		var ind, n int
 		m = "false"
 		tii = ""
 		n = -1
-		resp, err := http.Get("https://3bdbeca04a864ccd8530ed61cecd741a-vp0.us.blockchain.ibm.com:5003/transactions/" + str)
+		fmt.Println(tid)
+		resp, err := http.Get("https://1bb5c3cf7def48bcaef058393604b7e7-vp0.us.blockchain.ibm.com:5003/transactions/" + str)
 		if err != nil {
 			// handle error
 		}
@@ -138,7 +141,10 @@ func mainReturnWithCode() {
 		if len(trd) > 0 {
 			prid = rpl.Replace(sp[8])
 			tn := sp[3]
+			if tid != "" {
+				tn = tid
 
+			}
 			t := 0
 			for i := 0; i < rn; i++ {
 				t++
@@ -200,62 +206,42 @@ func mainReturnWithCode() {
 	}
 
 	var jsonFinal chart
-	var jsonAsTrs AllTx
+	//var jsonAsTrs AllTx
 	var getBranch func(string, AllTx, int)
-	str := "9003df5a-112b-4e05-bd28-939c50adbff0"
-	inf := 0
-	var ls, n int
-	var tid, std string
-	getAll := func(str string, ff int, prt AllTx) (AllTx, int) {
-		var at Transaction
-		var lst int
-
-		var tii string
+	str := "6192977f-0d2a-4b36-9e2c-0bda6400e651"
+	//inf := 0
+	var n int
+	var tid, tii, std string
+	getAll = func(str string, ff int, prt AllTx) {
+		//var at Transaction
+		//var lst int
+		//var tii string
 		tii = ""
-		count := 0
-		ttr := str
+		//count := 0
+		//ttr := str
+		//jsonFinal.TDs = append(jsonFinal.TDs, trans.TXs[ff])
 
-	T:
-		at, ls = findIndex(str, trans)
+		//n = inField(str, ff, trans)
+		q = ff
+		if q > 0 {
+			to := trans.TXs[q].Id
+			td := trans.TXs[q-1].Id
 
-		if at.Prev_Transaction_id != "" {
-
-			q = inField(tii, str, trans)
-			if q > 0 {
-				to := trans.TXs[q].Id
-				td := trans.TXs[q-1].Id
-
-				if to == td {
-					getBranch(str, prt, q)
-					return prt, inf
-				} else {
-					str, ff, tii = getPrev(str, "")
-					prt.TXs = append(prt.TXs, at)
-					goto T
-				}
-				q--
+			if to == td {
+				fmt.Println(trans.TXs[q].Id)
+				getBranch(str, prt, q)
 			} else {
-				str, ff, tii = getPrev(str, "")
-				prt.TXs = append(prt.TXs, at)
-				goto T
+				fmt.Println(trans.TXs[q].Id)
+				str, q, tid = getPrev(str, trans.TXs[q].Id)
+				getAll(str, q, founded)
 			}
-
-		} else if ff > 0 {
-
-			prt.TXs = append(prt.TXs, trans.TXs[ff])
-			str, ff, tii = getPrev(str, std)
-			goto T
-		} else if ttr == "1" {
-			lst = inField(tii, ttr, trans)
-			inf = lst
-			if count < 1 {
-				count++
-				goto T
-			}
-
-			return prt, inf
+		} else if q == 0 {
+			fmt.Println(trans.TXs[q].Id)
+			//jsonFinal.TDs = append(jsonFinal.TDs, trans.TXs[q])
+			str, q, tid = getPrev(str, trans.TXs[q].Id)
+			getAll(str, q, founded)
 		}
-		return prt, inf
+		return
 
 	}
 	getBranch = func(str string, jsonAsTr AllTx, q int) {
@@ -265,11 +251,11 @@ func mainReturnWithCode() {
 			if to == td {
 				foun.TXs = append(foun.TXs, trans.TXs[q])
 
-				jsonAsTr, _ = getAll(trans.TXs[q].Prev_Transaction_id, q, founded)
-				jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
+				getAll(trans.TXs[q].Prev_Transaction_id, q, founded)
+				//jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
 
-				jsonAsTr, _ = getAll(trans.TXs[q-1].Prev_Transaction_id, q-1, founded)
-				jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
+				getAll(trans.TXs[q-1].Prev_Transaction_id, q-1, founded)
+				//jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
 
 				return
 			}
@@ -283,8 +269,10 @@ func mainReturnWithCode() {
 		n = inField(tid, "1", trans)
 
 	}
-	jsonAsTrs, inf = getAll(std, n, founded)
-	jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTrs)
+	fmt.Println(std)
+	fmt.Println(n)
+	getAll(std, n, founded)
+	//jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTrs)
 	//q = inf
 
 	jsonAsBy, _ := json.Marshal(jsonFinal)
