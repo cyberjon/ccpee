@@ -196,7 +196,7 @@ func mainReturnWithCode() {
 	var jsonAsTrs AllTx
 	var tid, tii, std string
 	var getBranch func(string, AllTx, int)
-	str := "f972064f-4ac1-45eb-8347-dff93ecc265d"
+	str := "93341000-397d-4fb4-bad8-44e86f4157e3"
 
 	var n int
 	//co := 0
@@ -212,9 +212,11 @@ func mainReturnWithCode() {
 			to := trans.TXs[q].Id
 			tn := trans.TXs[q+1].Id
 			if to == td {
+				fmt.Println("Loop 1")
 				count = str
 				getBranch(str, prt, q-1)
 			} else if to == tn {
+				fmt.Println("Loop 2")
 				count = str
 				getBranch(str, prt, q+1)
 			} else {
@@ -256,8 +258,10 @@ func mainReturnWithCode() {
 		to := trans.TXs[q].Id
 		tn := trans.TXs[q+1].Id
 		if to == td {
+			fmt.Println("Loop 3")
 			jsonAsTrs = getAll(trans.TXs[q].Prev_Transaction_id, q, founded)
 		} else if to == tn {
+			fmt.Println("Loop 4")
 			jsonAsTrs = getAll(trans.TXs[q].Prev_Transaction_id, q, founded)
 		}
 		return
