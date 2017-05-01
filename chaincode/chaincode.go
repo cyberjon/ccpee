@@ -230,10 +230,9 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			}
 			q++
 		}
-		//vn := len(foun.TXs)
-		//var jsonAsTr AllTx
+		//var tid, std string
 		var getAll func(string, int, AllTx) AllTx
-
+		//var n int
 		getPrev := func(str string, tid string) (string, int, string) {
 			var m, tii string
 			var ind, n int
@@ -265,7 +264,6 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 				prid = rpl.Replace(sp[8])
 				tn := sp[3]
 				if tid != "" {
-					//tn = tid
 
 				}
 				t := 0
@@ -288,7 +286,6 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 						if t == tm {
 							ind = i
 							break
-							//return prid, ind, tn
 						}
 
 					}
@@ -299,7 +296,6 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			return m, n, tii
 
 		}
-		//var inField func(string, AllTx) int
 		inField := func(ssd string, spd string, trans AllTx) int {
 			var ti int
 
@@ -332,17 +328,13 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 
 		var jsonFinal chart
 		var jsonAsTrs AllTx
-		var tid, tii, std string
+		var tii string
 		var getBranch func(string, AllTx, int)
 		str := args[1]
-		//count := 0
-		var n int
 
 		getAll = func(str string, ff int, prt AllTx) AllTx {
 			var at Transaction
 			var tk int
-			//var prt AllTx
-			//var tii string
 			tii = ""
 
 			q = ff
@@ -355,14 +347,12 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 				if to == td {
 					getBranch(str, prt, q)
 				} else if q > 0 {
-					fmt.Println("second")
 					str, q, tii = getPrev(str, "")
 					tk = inField(tii, str, trans)
 					at = trans.TXs[tk]
 					prt.TXs = append(prt.TXs, at)
 					jsonFinal.TDs = append(jsonFinal.TDs, prt)
 					jsonAsTrs = getAll(str, tk, founded)
-					//jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTrs)
 					return prt
 				}
 				q--
@@ -390,11 +380,8 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			return
 		}
 
-		std, n, tid = getPrev(str, "")
-		n = inField("", str, trans)
-		fmt.Println(n)
-		fmt.Println(std)
-		fmt.Println(tid)
+		// std, n, tid = getPrev(str, "")
+		// 		n = inField("", str, trans)
 		jsonAsTrs = getAll(str, 1, founded)
 		jsonAsBy, _ := json.Marshal(jsonFinal)
 		return jsonAsBy, nil
