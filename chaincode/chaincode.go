@@ -220,7 +220,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		rn := len(trans.TXs)
 		var founded AllTx
 		var foun AllTx
-		//var jsonAsByte byte
+
 		for q < rn-1 {
 			to := trans.TXs[q].Id
 			td := trans.TXs[q+1].Id
@@ -232,7 +232,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			q++
 		}
 		vn := len(foun.TXs)
-		//var jsonAsTr AllTx
+		cin := vn
 		var getAll func(string, int, AllTx) AllTx
 
 		getPrev := func(str string, tid string) (string, int, string) {
@@ -317,15 +317,18 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			return ti
 		}
 
+		var brFinal = make([]AllTx, vn+1)
 		var jsonFinal chart
 		var jsonAsTrs AllTx
 		var tid, tii, std string
 		var getBranch func(string, AllTx, int)
-		str := args[1]
+		str := "c99e263d-0fed-4a14-bdab-3ccc84575147"
 
 		var n int
-		//co := 0
+		co := 0
+		cco := 0
 		count := ""
+		count2 := ""
 		getAll = func(str string, ff int, prt AllTx) AllTx {
 			var at Transaction
 			var tk int
@@ -341,15 +344,32 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 				}
 
 				if to == td {
-					count = str
-					getBranch(str, prt, q-1)
+					fmt.Println("Loop 1")
+					if co == 0 {
+						count = trans.TXs[q-1].Prev_Transaction_id
+						fmt.Println(count)
+						cco++
+					}
+					count2 = str
+					co++
+					q--
+					getBranch(str, prt, q)
 				} else if to == tn {
+					fmt.Println("Loop 2")
+					if co == 0 {
+						count = trans.TXs[q+1].Prev_Transaction_id
+						fmt.Println(count)
+						cco++
+					}
 					count = str
-					getBranch(str, prt, q+1)
+					co++
+					q++
+					getBranch(str, prt, q)
 				} else {
+					fmt.Println("Loop 3")
 					str, q, tii = getPrev(str, "")
 					tk = inField(tii, str, trans)
-					at = trans.TXs[tk]
+					at = trans.TXs[q]
 
 					prt.TXs = append(prt.TXs, at)
 					jsonFinal.TDs = append(jsonFinal.TDs, prt)
@@ -358,20 +378,29 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 				}
 
 			}
-			if str == "1" && len(count) > 0 && lc == 0 {
+
+			if str == "1" && co > 0 && lc == 0 {
+				fmt.Println("Loop 4")
 				at = trans.TXs[ff]
 				prt.TXs = append(prt.TXs, at)
 				lc++
 			}
 
-			if len(count) > 0 {
+			if co > 0 {
+				fmt.Println("Loop 5")
+				co--
+				if cco == 0 {
+					count = count2
+					fmt.Println(count)
+				}
+				cco--
 				str, q, tii = getPrev(count, "")
 				tk = inField(tii, str, trans)
 				at = trans.TXs[tk]
 
 				prt.TXs = append(prt.TXs, at)
-				count = ""
 				jsonFinal.TDs = append(jsonFinal.TDs, prt)
+
 				jsonAsTrs = getAll(str, tk, founded)
 
 			}
@@ -379,7 +408,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			return prt
 
 		}
-
+		hk := 0
 		getBranch = func(str string, jsonAsTr AllTx, q int) {
 			tn := "0"
 			td := trans.TXs[q-1].Id
@@ -388,12 +417,24 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 				tn = trans.TXs[q+1].Id
 			}
 			if to == td {
-				fmt.Println("Loop 3")
-				jsonAsTrs = getAll(trans.TXs[q].Prev_Transaction_id, q, founded)
+				fmt.Println("Branch 3")
+				hk++
+				if hk < vn {
+					q--
+					jsonAsTrs = getAll(trans.TXs[q].Prev_Transaction_id, q, founded)
+					cin--
+				}
 			} else if to == tn {
-				fmt.Println("Loop 4")
-				jsonAsTrs = getAll(trans.TXs[q].Prev_Transaction_id, q, founded)
+				fmt.Println("Branch 4")
+				hk++
+				if hk < vn {
+					q++
+					jsonAsTrs = getAll(trans.TXs[q].Prev_Transaction_id, q, founded)
+					cin--
+				}
+
 			}
+			brFinal[1] = jsonAsTrs
 			return
 		}
 
@@ -402,7 +443,8 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		fmt.Println(n)
 		fmt.Println(std)
 		fmt.Println(tid)
-		jsonAsTrs = getAll(str, 1, founded)
+		jsonAsTrs = getAll(std, n+1, founded)
+
 		jsonAsBy, _ := json.Marshal(jsonFinal)
 		return jsonAsBy, nil
 	} else if fun == "findLatestBySeller" {
