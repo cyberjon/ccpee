@@ -322,7 +322,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		var jsonAsTrs AllTx
 		var tid, tii, std string
 		var getBranch func(string, AllTx, int)
-		str := "c99e263d-0fed-4a14-bdab-3ccc84575147"
+		str := args[1]
 
 		var n int
 		co := 0
