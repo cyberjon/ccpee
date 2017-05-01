@@ -280,16 +280,9 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 						copy(a[0:], a[1:])
 						a[len(a)-1] = 0
 						a = a[:len(a)-1]
-
-						t, err := strconv.Atoi(string(a))
-						if err != nil {
-							fmt.Println(err)
-						}
-						tm, _ := strconv.Atoi(trans.TXs[i].Id)
-						if t == tm {
+						if string(a) == trans.TXs[i].Id {
 							ind = i
 							break
-							//return prid, ind, tn
 						}
 
 					}
@@ -312,14 +305,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 					copy(a[0:], a[1:])
 					a[len(a)-1] = 0
 					a = a[:len(a)-1]
-
-					t, err := strconv.Atoi(string(a))
-					if err != nil {
-						fmt.Println(err)
-					}
-					tm, _ := strconv.Atoi(trans.TXs[z].Id)
-
-					if t == tm && spd == trans.TXs[z].Prev_Transaction_id {
+					if string(a) == trans.TXs[z].Id && spd == trans.TXs[z].Prev_Transaction_id {
 						ti = z
 						return ti
 					}

@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
+	//"strconv"
 	"strings"
 )
 
@@ -142,12 +142,12 @@ func mainReturnWithCode() {
 					a[len(a)-1] = 0
 					a = a[:len(a)-1]
 
-					t, err := strconv.Atoi(string(a))
-					if err != nil {
-						fmt.Println(err)
-					}
-					tm, _ := strconv.Atoi(trans.TXs[i].Id)
-					if t == tm {
+					// t, err := strconv.Atoi(string(a))
+					// 					if err != nil {
+					// 						fmt.Println(err)
+					// 					}
+					// 					tm, _ := strconv.Atoi(trans.TXs[i].Id)
+					if string(a) == trans.TXs[i].Id {
 						ind = i
 						break
 						//return prid, ind, tn
@@ -174,13 +174,13 @@ func mainReturnWithCode() {
 				a[len(a)-1] = 0
 				a = a[:len(a)-1]
 
-				t, err := strconv.Atoi(string(a))
-				if err != nil {
-					fmt.Println(err)
-				}
-				tm, _ := strconv.Atoi(trans.TXs[z].Id)
+				// t, err := strconv.Atoi(string(a))
+				// 				if err != nil {
+				// 					fmt.Println(err)
+				// 				}
+				// 				tm, _ := strconv.Atoi(trans.TXs[z].Id)
 
-				if t == tm && spd == trans.TXs[z].Prev_Transaction_id {
+				if string(a) == trans.TXs[z].Id && spd == trans.TXs[z].Prev_Transaction_id {
 					ti = z
 					return ti
 				}
@@ -196,7 +196,7 @@ func mainReturnWithCode() {
 	var jsonAsTrs AllTx
 	var tid, tii, std string
 	var getBranch func(string, AllTx, int)
-	str := "93341000-397d-4fb4-bad8-44e86f4157e3"
+	str := "e0db7432-8e33-44da-a13b-1a6a2573221e"
 
 	var n int
 	//co := 0
