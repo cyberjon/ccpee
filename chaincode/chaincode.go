@@ -198,7 +198,6 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 	if fun == "read" {
 		var prid string
 		q := 0
-		lc := 0
 		if len(args) != 2 {
 			return nil, errors.New("Incorrect number of arguments. Expecting function name and name of the var to query")
 		}
@@ -235,6 +234,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		//var jsonAsTr AllTx
 		var getAll func(string, int, AllTx) AllTx
 
+		lc := 0
 		getPrev := func(str string, tid string) (string, int, string) {
 			var m, tii string
 			var ind, n int
