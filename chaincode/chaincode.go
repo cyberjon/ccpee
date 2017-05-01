@@ -443,7 +443,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		fmt.Println(n)
 		fmt.Println(std)
 		fmt.Println(tid)
-		jsonAsTrs = getAll(std, n+1, founded)
+		jsonAsTrs = getAll(str, n+1, founded)
 
 		jsonAsBy, _ := json.Marshal(jsonFinal)
 		return jsonAsBy, nil
