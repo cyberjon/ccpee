@@ -94,29 +94,14 @@ func mainReturnWithCode() {
 	}
 	//vn := len(foun.TXs)
 	//var jsonAsTr AllTx
-	var getAll func(string, int, AllTx)
-	// findIndex := func(str string, trans AllTx) (Transaction, int) {
-	// 		var q Transaction
-	// 		t := 0
-	// 		for i := 0; i < rn; i++ {
-	// 			t++
-	// 			if t > rn {
-	// 				break
-	// 			}
-	// 			if trans.TXs[i].Prev_Transaction_id == str {
-	// 				return trans.TXs[i], i
-	// 			}
-	//
-	// 		}
-	// 		return q, -2
-	// 	}
+	var getAll func(string, int, AllTx) AllTx
+
 	getPrev := func(str string, tid string) (string, int, string) {
 		var m, tii string
 		var ind, n int
 		m = "false"
 		tii = ""
 		n = -1
-		fmt.Println(tid)
 		resp, err := http.Get("https://1bb5c3cf7def48bcaef058393604b7e7-vp0.us.blockchain.ibm.com:5003/transactions/" + str)
 		if err != nil {
 			// handle error
@@ -142,7 +127,7 @@ func mainReturnWithCode() {
 			prid = rpl.Replace(sp[8])
 			tn := sp[3]
 			if tid != "" {
-				tn = tid
+				//tn = tid
 
 			}
 			t := 0
@@ -194,10 +179,12 @@ func mainReturnWithCode() {
 					fmt.Println(err)
 				}
 				tm, _ := strconv.Atoi(trans.TXs[z].Id)
+
 				if t == tm && spd == trans.TXs[z].Prev_Transaction_id {
 					ti = z
 					return ti
 				}
+
 			}
 
 			z--
@@ -206,75 +193,71 @@ func mainReturnWithCode() {
 	}
 
 	var jsonFinal chart
-	//var jsonAsTrs AllTx
-	var getBranch func(string, AllTx, int)
-	str := "6192977f-0d2a-4b36-9e2c-0bda6400e651"
-	//inf := 0
-	var n int
+	var jsonAsTrs AllTx
 	var tid, tii, std string
-	getAll = func(str string, ff int, prt AllTx) {
-		//var at Transaction
-		//var lst int
+	var getBranch func(string, AllTx, int)
+	str := "0ebf958d-1b34-4cc2-8797-4785e42b004b"
+	//count := 0
+	var n int
+
+	getAll = func(str string, ff int, prt AllTx) AllTx {
+		var at Transaction
+		var tk int
+		//var prt AllTx
 		//var tii string
 		tii = ""
-		//count := 0
-		//ttr := str
-		//jsonFinal.TDs = append(jsonFinal.TDs, trans.TXs[ff])
 
-		//n = inField(str, ff, trans)
 		q = ff
+
 		if q > 0 {
 			to := trans.TXs[q].Id
 			td := trans.TXs[q-1].Id
 
+			fmt.Println(q)
 			if to == td {
-				fmt.Println(trans.TXs[q].Id)
 				getBranch(str, prt, q)
-			} else {
-				fmt.Println(trans.TXs[q].Id)
-				str, q, tid = getPrev(str, trans.TXs[q].Id)
-				getAll(str, q, founded)
+			} else if q > 0 {
+				fmt.Println("second")
+				str, q, tii = getPrev(str, "")
+				tk = inField(tii, str, trans)
+				at = trans.TXs[tk]
+				prt.TXs = append(prt.TXs, at)
+				jsonFinal.TDs = append(jsonFinal.TDs, prt)
+				jsonAsTrs = getAll(str, tk, founded)
+				//jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTrs)
+				return prt
 			}
-		} else if q == 0 {
-			fmt.Println(trans.TXs[q].Id)
-			//jsonFinal.TDs = append(jsonFinal.TDs, trans.TXs[q])
-			str, q, tid = getPrev(str, trans.TXs[q].Id)
-			getAll(str, q, founded)
+			q--
+		} else {
+			return prt
 		}
-		return
+		return prt
 
 	}
 	getBranch = func(str string, jsonAsTr AllTx, q int) {
 		if q > 0 {
 			to := trans.TXs[q].Id
 			td := trans.TXs[q-1].Id
+			tm := q
 			if to == td {
-				foun.TXs = append(foun.TXs, trans.TXs[q])
-
-				getAll(trans.TXs[q].Prev_Transaction_id, q, founded)
-				//jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
-
-				getAll(trans.TXs[q-1].Prev_Transaction_id, q-1, founded)
-				//jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
+				q--
+				foun.TXs = append(foun.TXs, trans.TXs[tm])
+				jsonAsTrs = getAll(trans.TXs[tm].Prev_Transaction_id, q, founded)
+				jsonAsTrs = getAll(trans.TXs[tm-1].Prev_Transaction_id, tm-1, founded)
 
 				return
 			}
-			q--
+
 		}
 		return
 	}
 
 	std, n, tid = getPrev(str, "")
-	if std == "1" {
-		n = inField(tid, "1", trans)
-
-	}
-	fmt.Println(std)
+	n = inField("", str, trans)
 	fmt.Println(n)
-	getAll(std, n, founded)
-	//jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTrs)
-	//q = inf
-
+	fmt.Println(std)
+	fmt.Println(tid)
+	jsonAsTrs = getAll(str, 1, founded)
 	jsonAsBy, _ := json.Marshal(jsonFinal)
 	fmt.Println(string(jsonAsBy))
 

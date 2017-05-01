@@ -231,21 +231,9 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			q++
 		}
 		//vn := len(foun.TXs)
-		findIndex := func(str string, trans AllTx) (Transaction, int) {
-			var q Transaction
-			t := 0
-			for i := 0; i < rn; i++ {
-				t++
-				if t > rn {
-					break
-				}
-				if trans.TXs[i].Prev_Transaction_id == str {
-					return trans.TXs[i], i
-				}
+		//var jsonAsTr AllTx
+		var getAll func(string, int, AllTx) AllTx
 
-			}
-			return q, -2
-		}
 		getPrev := func(str string, tid string) (string, int, string) {
 			var m, tii string
 			var ind, n int
@@ -276,7 +264,10 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			if len(trd) > 0 {
 				prid = rpl.Replace(sp[8])
 				tn := sp[3]
+				if tid != "" {
+					//tn = tid
 
+				}
 				t := 0
 				for i := 0; i < rn; i++ {
 					t++
@@ -326,10 +317,12 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 						fmt.Println(err)
 					}
 					tm, _ := strconv.Atoi(trans.TXs[z].Id)
+
 					if t == tm && spd == trans.TXs[z].Prev_Transaction_id {
 						ti = z
 						return ti
 					}
+
 				}
 
 				z--
@@ -339,90 +332,70 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 
 		var jsonFinal chart
 		var jsonAsTrs AllTx
+		var tid, tii, std string
 		var getBranch func(string, AllTx, int)
 		str := args[1]
-		inf := 0
-		var ls, n int
-		var tid, std string
-		getAll := func(str string, ff int, prt AllTx) (AllTx, int) {
+		//count := 0
+		var n int
+
+		getAll = func(str string, ff int, prt AllTx) AllTx {
 			var at Transaction
-			var lst int
-
-			var tii string
+			var tk int
+			//var prt AllTx
+			//var tii string
 			tii = ""
-			count := 0
-			ttr := str
 
-		T:
-			at, ls = findIndex(str, trans)
+			q = ff
 
-			if at.Prev_Transaction_id != "" {
+			if q > 0 {
+				to := trans.TXs[q].Id
+				td := trans.TXs[q-1].Id
 
-				q = inField(tii, str, trans)
-				if q > 0 {
-					to := trans.TXs[q].Id
-					td := trans.TXs[q-1].Id
-
-					if to == td {
-						getBranch(str, prt, q)
-						return prt, inf
-					} else {
-						str, ff, tii = getPrev(str, "")
-						prt.TXs = append(prt.TXs, at)
-						goto T
-					}
-					q--
-				} else {
-					str, ff, tii = getPrev(str, "")
+				fmt.Println(q)
+				if to == td {
+					getBranch(str, prt, q)
+				} else if q > 0 {
+					fmt.Println("second")
+					str, q, tii = getPrev(str, "")
+					tk = inField(tii, str, trans)
+					at = trans.TXs[tk]
 					prt.TXs = append(prt.TXs, at)
-					goto T
+					jsonFinal.TDs = append(jsonFinal.TDs, prt)
+					jsonAsTrs = getAll(str, tk, founded)
+					//jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTrs)
+					return prt
 				}
-
-			} else if ff > 0 {
-
-				prt.TXs = append(prt.TXs, trans.TXs[ff])
-				str, ff, tii = getPrev(str, std)
-				goto T
-			} else if ttr == "1" {
-				lst = inField(tii, ttr, trans)
-				inf = lst
-				if count < 1 {
-					count++
-					goto T
-				}
-
-				return prt, inf
+				q--
+			} else {
+				return prt
 			}
-			return prt, inf
+			return prt
 
 		}
 		getBranch = func(str string, jsonAsTr AllTx, q int) {
 			if q > 0 {
 				to := trans.TXs[q].Id
 				td := trans.TXs[q-1].Id
+				tm := q
 				if to == td {
-					foun.TXs = append(foun.TXs, trans.TXs[q])
-
-					jsonAsTr, _ = getAll(trans.TXs[q].Prev_Transaction_id, q, founded)
-					jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
-
-					jsonAsTr, _ = getAll(trans.TXs[q-1].Prev_Transaction_id, q-1, founded)
-					jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTr)
+					q--
+					foun.TXs = append(foun.TXs, trans.TXs[tm])
+					jsonAsTrs = getAll(trans.TXs[tm].Prev_Transaction_id, q, founded)
+					jsonAsTrs = getAll(trans.TXs[tm-1].Prev_Transaction_id, tm-1, founded)
 
 					return
 				}
-				q--
+
 			}
 			return
 		}
 
 		std, n, tid = getPrev(str, "")
-		if std == "1" {
-			n = inField(tid, "1", trans)
-
-		}
-		jsonAsTrs, inf = getAll(std, n, founded)
-		jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTrs)
+		n = inField("", str, trans)
+		fmt.Println(n)
+		fmt.Println(std)
+		fmt.Println(tid)
+		jsonAsTrs = getAll(str, 1, founded)
 		jsonAsBy, _ := json.Marshal(jsonFinal)
 		return jsonAsBy, nil
 	} else if fun == "findLatestBySeller" {
