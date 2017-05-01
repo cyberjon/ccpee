@@ -65,7 +65,7 @@ func main() {
 func mainReturnWithCode() {
 	var prid string
 	q := 0
-
+	lc := 0
 	res, err := http.Get("http://127.0.0.1:8080/t.json")
 	if err != nil {
 		// handle error
@@ -196,58 +196,69 @@ func mainReturnWithCode() {
 	var jsonAsTrs AllTx
 	var tid, tii, std string
 	var getBranch func(string, AllTx, int)
-	str := "0ebf958d-1b34-4cc2-8797-4785e42b004b"
-	//count := 0
-	var n int
+	str := "f972064f-4ac1-45eb-8347-dff93ecc265d"
 
+	var n int
+	//co := 0
+	count := ""
 	getAll = func(str string, ff int, prt AllTx) AllTx {
 		var at Transaction
 		var tk int
-		//var prt AllTx
-		//var tii string
 		tii = ""
 
 		q = ff
-
-		if q > 0 {
-			to := trans.TXs[q].Id
+		if q > 0 && str != "1" {
 			td := trans.TXs[q-1].Id
-
-			fmt.Println(q)
+			to := trans.TXs[q].Id
+			tn := trans.TXs[q+1].Id
 			if to == td {
-				getBranch(str, prt, q)
-			} else if q > 0 {
-				fmt.Println("second")
+				count = str
+				getBranch(str, prt, q-1)
+			} else if to == tn {
+				count = str
+				getBranch(str, prt, q+1)
+			} else {
 				str, q, tii = getPrev(str, "")
 				tk = inField(tii, str, trans)
 				at = trans.TXs[tk]
+
 				prt.TXs = append(prt.TXs, at)
 				jsonFinal.TDs = append(jsonFinal.TDs, prt)
 				jsonAsTrs = getAll(str, tk, founded)
-				//jsonFinal.TDs = append(jsonFinal.TDs, jsonAsTrs)
-				return prt
+
 			}
-			q--
-		} else {
-			return prt
+
 		}
+		if str == "1" && len(count) > 0 && lc == 0 {
+			at = trans.TXs[ff]
+			prt.TXs = append(prt.TXs, at)
+			lc++
+		}
+
+		if len(count) > 0 {
+			str, q, tii = getPrev(count, "")
+			tk = inField(tii, str, trans)
+			at = trans.TXs[tk]
+
+			prt.TXs = append(prt.TXs, at)
+			count = ""
+			jsonFinal.TDs = append(jsonFinal.TDs, prt)
+			jsonAsTrs = getAll(str, tk, founded)
+
+		}
+
 		return prt
 
 	}
+
 	getBranch = func(str string, jsonAsTr AllTx, q int) {
-		if q > 0 {
-			to := trans.TXs[q].Id
-			td := trans.TXs[q-1].Id
-			tm := q
-			if to == td {
-				q--
-				foun.TXs = append(foun.TXs, trans.TXs[tm])
-				jsonAsTrs = getAll(trans.TXs[tm].Prev_Transaction_id, q, founded)
-				jsonAsTrs = getAll(trans.TXs[tm-1].Prev_Transaction_id, tm-1, founded)
-
-				return
-			}
-
+		td := trans.TXs[q-1].Id
+		to := trans.TXs[q].Id
+		tn := trans.TXs[q+1].Id
+		if to == td {
+			jsonAsTrs = getAll(trans.TXs[q].Prev_Transaction_id, q, founded)
+		} else if to == tn {
+			jsonAsTrs = getAll(trans.TXs[q].Prev_Transaction_id, q, founded)
 		}
 		return
 	}
