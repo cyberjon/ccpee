@@ -92,7 +92,7 @@ func mainReturnWithCode() {
 		}
 		q++
 	}
-	//vn := len(foun.TXs)
+	vn := len(foun.TXs)
 	//var jsonAsTr AllTx
 	var getAll func(string, int, AllTx) AllTx
 
@@ -102,7 +102,7 @@ func mainReturnWithCode() {
 		m = "false"
 		tii = ""
 		n = -1
-		resp, err := http.Get("https://1bb5c3cf7def48bcaef058393604b7e7-vp0.us.blockchain.ibm.com:5003/transactions/" + str)
+		resp, err := http.Get("https://1c965e4727c24d81ace6787e11ca2b4b-vp0.us.blockchain.ibm.com:5001/transactions/" + str)
 		if err != nil {
 			// handle error
 		}
@@ -144,7 +144,6 @@ func mainReturnWithCode() {
 					if string(a) == trans.TXs[i].Id {
 						ind = i
 						break
-						//return prid, ind, tn
 					}
 
 				}
@@ -183,7 +182,7 @@ func mainReturnWithCode() {
 	var jsonAsTrs AllTx
 	var tid, tii, std string
 	var getBranch func(string, AllTx, int)
-	str := "e0db7432-8e33-44da-a13b-1a6a2573221e"
+	str := "c7224a6c-8eb0-4440-8fe7-4e7b9410f750"
 
 	var n int
 	//co := 0
@@ -195,9 +194,13 @@ func mainReturnWithCode() {
 
 		q = ff
 		if q > 0 && str != "1" {
+			tn := "0"
 			td := trans.TXs[q-1].Id
 			to := trans.TXs[q].Id
-			tn := trans.TXs[q+1].Id
+			if vn > 1 {
+				tn = trans.TXs[q+1].Id
+			}
+
 			if to == td {
 				fmt.Println("Loop 1")
 				count = str
@@ -241,9 +244,12 @@ func mainReturnWithCode() {
 	}
 
 	getBranch = func(str string, jsonAsTr AllTx, q int) {
+		tn := "0"
 		td := trans.TXs[q-1].Id
 		to := trans.TXs[q].Id
-		tn := trans.TXs[q+1].Id
+		if vn > 1 {
+			tn = trans.TXs[q+1].Id
+		}
 		if to == td {
 			fmt.Println("Loop 3")
 			jsonAsTrs = getAll(trans.TXs[q].Prev_Transaction_id, q, founded)

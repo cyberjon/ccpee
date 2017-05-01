@@ -231,7 +231,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			}
 			q++
 		}
-		//vn := len(foun.TXs)
+		vn := len(foun.TXs)
 		//var jsonAsTr AllTx
 		var getAll func(string, int, AllTx) AllTx
 
@@ -333,15 +333,17 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 
 			q = ff
 			if q > 0 && str != "1" {
+				tn := "0"
 				td := trans.TXs[q-1].Id
 				to := trans.TXs[q].Id
-				tn := trans.TXs[q+1].Id
+				if vn > 1 {
+					tn = trans.TXs[q+1].Id
+				}
+
 				if to == td {
-					fmt.Println("Loop 1")
 					count = str
 					getBranch(str, prt, q-1)
 				} else if to == tn {
-					fmt.Println("Loop 2")
 					count = str
 					getBranch(str, prt, q+1)
 				} else {
@@ -379,9 +381,12 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		}
 
 		getBranch = func(str string, jsonAsTr AllTx, q int) {
+			tn := "0"
 			td := trans.TXs[q-1].Id
 			to := trans.TXs[q].Id
-			tn := trans.TXs[q+1].Id
+			if vn > 1 {
+				tn = trans.TXs[q+1].Id
+			}
 			if to == td {
 				fmt.Println("Loop 3")
 				jsonAsTrs = getAll(trans.TXs[q].Prev_Transaction_id, q, founded)
