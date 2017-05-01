@@ -361,7 +361,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 						fmt.Println(count)
 						cco++
 					}
-					count = str
+					count2 = str
 					co++
 					q++
 					getBranch(str, prt, q)
