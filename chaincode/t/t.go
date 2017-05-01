@@ -141,12 +141,6 @@ func mainReturnWithCode() {
 					copy(a[0:], a[1:])
 					a[len(a)-1] = 0
 					a = a[:len(a)-1]
-
-					// t, err := strconv.Atoi(string(a))
-					// 					if err != nil {
-					// 						fmt.Println(err)
-					// 					}
-					// 					tm, _ := strconv.Atoi(trans.TXs[i].Id)
 					if string(a) == trans.TXs[i].Id {
 						ind = i
 						break
@@ -173,13 +167,6 @@ func mainReturnWithCode() {
 				copy(a[0:], a[1:])
 				a[len(a)-1] = 0
 				a = a[:len(a)-1]
-
-				// t, err := strconv.Atoi(string(a))
-				// 				if err != nil {
-				// 					fmt.Println(err)
-				// 				}
-				// 				tm, _ := strconv.Atoi(trans.TXs[z].Id)
-
 				if string(a) == trans.TXs[z].Id && spd == trans.TXs[z].Prev_Transaction_id {
 					ti = z
 					return ti
