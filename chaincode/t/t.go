@@ -22,6 +22,7 @@ type Transaction struct {
 }
 
 type AllTx struct {
+	Tid []int         `json:"tid"`
 	TXs []Transaction `json:"tx"`
 }
 type Transac struct {
@@ -51,9 +52,6 @@ type Transact struct {
 }
 type chart struct {
 	TDs []AllTx `json:"td"`
-}
-type branch struct {
-	TBs []chart `json:"tb"`
 }
 
 func main() {
@@ -157,7 +155,7 @@ func mainReturnWithCode() {
 		return m, n, tii
 
 	}
-	//var inField func(string, AllTx) int
+
 	inField := func(ssd string, spd string, trans AllTx) int {
 		var ti int
 
@@ -181,18 +179,18 @@ func mainReturnWithCode() {
 		return ti
 	}
 
-	var brFinal = make([]AllTx, vn+1)
 	var jsonFinal chart
 	var jsonAsTrs AllTx
 	var tid, tii, std string
 	var getBranch func(string, AllTx, int)
-	str := "5066133e-8352-4782-b9e4-6d85bfd16937"
+	str := "c99e263d-0fed-4a14-bdab-3ccc84575147"
 
 	var n int
 	co := 0
 	cco := 0
 	count := ""
 	count2 := ""
+	tidc := 0
 	getAll = func(str string, ff int, prt AllTx) AllTx {
 		var at Transaction
 		var tk int
@@ -236,6 +234,8 @@ func mainReturnWithCode() {
 				at = trans.TXs[q]
 
 				prt.TXs = append(prt.TXs, at)
+				prt.Tid = append(prt.Tid, tidc)
+				tidc++
 				jsonFinal.TDs = append(jsonFinal.TDs, prt)
 				jsonAsTrs = getAll(str, tk, founded)
 
@@ -247,6 +247,8 @@ func mainReturnWithCode() {
 			fmt.Println("Loop 4")
 			at = trans.TXs[ff]
 			prt.TXs = append(prt.TXs, at)
+			prt.Tid = append(prt.Tid, tidc)
+			tidc++
 			lc++
 		}
 
@@ -255,6 +257,7 @@ func mainReturnWithCode() {
 			co--
 			if cco == 0 {
 				count = count2
+				tidc = 10
 				fmt.Println(count)
 			}
 			cco--
@@ -263,12 +266,13 @@ func mainReturnWithCode() {
 			at = trans.TXs[tk]
 
 			prt.TXs = append(prt.TXs, at)
+			prt.Tid = append(prt.Tid, tidc)
+			tidc++
 			jsonFinal.TDs = append(jsonFinal.TDs, prt)
 
 			jsonAsTrs = getAll(str, tk, founded)
 
 		}
-
 		return prt
 
 	}
@@ -298,7 +302,7 @@ func mainReturnWithCode() {
 			}
 
 		}
-		brFinal[1] = jsonAsTrs
+		tidc = 10
 		return
 	}
 

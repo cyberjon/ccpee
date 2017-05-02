@@ -58,6 +58,7 @@ type Transaction struct {
 }
 
 type AllTx struct {
+	Tid []int         `json:"tid"`
 	TXs []Transaction `json:"tx"`
 }
 type Transac struct {
@@ -293,7 +294,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			return m, n, tii
 
 		}
-		//var inField func(string, AllTx) int
+
 		inField := func(ssd string, spd string, trans AllTx) int {
 			var ti int
 
@@ -317,7 +318,6 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			return ti
 		}
 
-		var brFinal = make([]AllTx, vn+1)
 		var jsonFinal chart
 		var jsonAsTrs AllTx
 		var tid, tii, std string
@@ -329,6 +329,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		cco := 0
 		count := ""
 		count2 := ""
+		tidc := 0
 		getAll = func(str string, ff int, prt AllTx) AllTx {
 			var at Transaction
 			var tk int
@@ -372,6 +373,8 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 					at = trans.TXs[q]
 
 					prt.TXs = append(prt.TXs, at)
+					prt.Tid = append(prt.Tid, tidc)
+					tidc++
 					jsonFinal.TDs = append(jsonFinal.TDs, prt)
 					jsonAsTrs = getAll(str, tk, founded)
 
@@ -383,6 +386,8 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 				fmt.Println("Loop 4")
 				at = trans.TXs[ff]
 				prt.TXs = append(prt.TXs, at)
+				prt.Tid = append(prt.Tid, tidc)
+				tidc++
 				lc++
 			}
 
@@ -391,6 +396,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 				co--
 				if cco == 0 {
 					count = count2
+					tidc = 10
 					fmt.Println(count)
 				}
 				cco--
@@ -399,12 +405,13 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 				at = trans.TXs[tk]
 
 				prt.TXs = append(prt.TXs, at)
+				prt.Tid = append(prt.Tid, tidc)
+				tidc++
 				jsonFinal.TDs = append(jsonFinal.TDs, prt)
 
 				jsonAsTrs = getAll(str, tk, founded)
 
 			}
-
 			return prt
 
 		}
@@ -434,7 +441,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 				}
 
 			}
-			brFinal[1] = jsonAsTrs
+			tidc = 10
 			return
 		}
 
@@ -444,7 +451,6 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		fmt.Println(std)
 		fmt.Println(tid)
 		jsonAsTrs = getAll(str, n+1, founded)
-
 		jsonAsBy, _ := json.Marshal(jsonFinal)
 		return jsonAsBy, nil
 	} else if fun == "findLatestBySeller" {
