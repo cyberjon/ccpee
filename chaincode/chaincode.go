@@ -240,7 +240,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			m = "false"
 			tii = ""
 			n = -1
-			resp, err := http.Get("https://1c965e4727c24d81ace6787e11ca2b4b-vp0.us.blockchain.ibm.com:5001/transactions/" + str)
+			resp, err := http.Get("https://99adba5ea39145b588cd55472f399516-vp0.us.blockchain.ibm.com:5003/transactions/" + str)
 			if err != nil {
 				// handle error
 			}
