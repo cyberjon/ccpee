@@ -641,6 +641,7 @@ func (t *SimpleChaincode) init_transaction(stub shim.ChaincodeStubInterface, arg
 	completed.Point_Amount = args[4]
 	completed.Prev_Transaction_id = args[5]
 	completed.Timestamp = args[6]
+	completed.Expiration_Date = args[7]
 
 	fmt.Println("- start completed trade")
 	jsonAsBytes, _ := json.Marshal(completed)
