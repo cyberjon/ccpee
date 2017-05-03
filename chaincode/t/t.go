@@ -176,14 +176,14 @@ func mainReturnWithCode() {
 
 			z--
 		}
-		return ti
+		return -1
 	}
 
 	var jsonFinal chart
 	var jsonAsTrs AllTx
 	var tid, tii, std string
 	var getBranch func(string, AllTx, int)
-	str := "c99e263d-0fed-4a14-bdab-3ccc84575147"
+	str := "11d5df45-a6fd-43a5-9597-06b9cf5481a7"
 
 	var n int
 	co := 0
@@ -194,15 +194,21 @@ func mainReturnWithCode() {
 	getAll = func(str string, ff int, prt AllTx) AllTx {
 		var at Transaction
 		var tk int
-		tii = ""
+		tii = tid
 
 		q = ff
-		if q > 0 && str != "1" {
+		if q > -1 && str != "1" {
 			tn := "0"
-			td := trans.TXs[q-1].Id
-			to := trans.TXs[q].Id
-			if vn > 1 {
-				tn = trans.TXs[q+1].Id
+			td := "n0"
+			to := "0n"
+			if q > 0 {
+				td = trans.TXs[q-1].Id
+				to = trans.TXs[q].Id
+				if vn > 1 && q < vn {
+					fmt.Println(q)
+					tn = trans.TXs[q+1].Id
+				}
+
 			}
 
 			if to == td {
@@ -228,17 +234,26 @@ func mainReturnWithCode() {
 				q++
 				getBranch(str, prt, q)
 			} else {
-				fmt.Println("Loop 3")
-				str, q, tii = getPrev(str, "")
-				tk = inField(tii, str, trans)
-				at = trans.TXs[q]
+				fmt.Println("Loop 3" + tid)
+				if ff != 0 {
+					str, q, tii = getPrev(str, "")
+					tk = inField(tii, str, trans)
+					at = trans.TXs[q]
 
-				prt.TXs = append(prt.TXs, at)
-				prt.Tid = append(prt.Tid, tidc)
-				tidc++
-				jsonFinal.TDs = append(jsonFinal.TDs, prt)
-				jsonAsTrs = getAll(str, tk, founded)
-
+					prt.TXs = append(prt.TXs, at)
+					prt.Tid = append(prt.Tid, tidc)
+					tidc++
+					jsonFinal.TDs = append(jsonFinal.TDs, prt)
+					jsonAsTrs = getAll(str, tk, founded)
+				} else {
+					at = trans.TXs[rn-1]
+					prt.TXs = append(prt.TXs, at)
+					prt.Tid = append(prt.Tid, tidc)
+					tidc++
+					jsonFinal.TDs = append(jsonFinal.TDs, prt)
+					str, q, tii = getPrev(str, "")
+					jsonAsTrs = getAll(str, q, founded)
+				}
 			}
 
 		}
@@ -307,11 +322,18 @@ func mainReturnWithCode() {
 	}
 
 	std, n, tid = getPrev(str, "")
-	n = inField("", str, trans)
-	fmt.Println(n)
-	fmt.Println(std)
-	fmt.Println(tid)
-	jsonAsTrs = getAll(str, n+1, founded)
+	if n == rn-1 {
+		n = inField("", std, trans)
+		fmt.Println(n)
+		fmt.Println(std)
+		fmt.Println(tid)
+		jsonAsTrs = getAll(str, n+1, founded)
+	} else {
+		fmt.Println(n)
+		fmt.Println(std)
+		fmt.Println(tid)
+		jsonAsTrs = getAll(str, n, founded)
+	}
 
 	jsonAsBy, _ := json.Marshal(jsonFinal)
 	fmt.Println(string(jsonAsBy))

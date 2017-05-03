@@ -18,16 +18,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/hyperledger/fabric/core/chaincode/shim"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
-
-	//"time"
-	//"strings"
-
-	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
 
 // SimpleChaincode example simple Chaincode implementation
@@ -48,13 +44,14 @@ type Point struct {
 }
 
 type Transaction struct {
-	Id                  string `json:"txID"`         //Transaction ID from cppe system
+	Id                  string `json:"ORD_ID"`       //Transaction ID from cppe system
 	Timestamp           string `json:"EX_TIME"`      //utc timestamp of creation
 	TraderA             string `json:"USER_A_ID"`    //UserA ID
 	TraderB             string `json:"USER_B_ID"`    //UserB ID
 	Seller              string `json:"SELLER_ID"`    //UserA's Seller ID
 	Point_Amount        string `json:"POINT_AMOUNT"` //Points owned by UserA after exchange
 	Prev_Transaction_id string `json:"PREV_TR_ID"`
+	Expiration_Date     string `json:"EXP_DATE"`
 }
 
 type AllTx struct {
@@ -71,6 +68,7 @@ type Transac struct {
 	Seller            string `json:"seller"`
 	PointAmount       string `json:"pointAmount"`
 	PrevTransactionID string `json:"prevTransactionId"`
+	ExpDate           string `json:"expDate"`
 }
 
 type AllTxs struct {
@@ -315,7 +313,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 
 				z--
 			}
-			return ti
+			return -1
 		}
 
 		var jsonFinal chart
@@ -333,15 +331,21 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		getAll = func(str string, ff int, prt AllTx) AllTx {
 			var at Transaction
 			var tk int
-			tii = ""
+			tii = tid
 
 			q = ff
-			if q > 0 && str != "1" {
+			if q > -1 && str != "1" {
 				tn := "0"
-				td := trans.TXs[q-1].Id
-				to := trans.TXs[q].Id
-				if vn > 1 {
-					tn = trans.TXs[q+1].Id
+				td := "n0"
+				to := "0n"
+				if q > 0 {
+					td = trans.TXs[q-1].Id
+					to = trans.TXs[q].Id
+					if vn > 1 && q < vn {
+						fmt.Println(q)
+						tn = trans.TXs[q+1].Id
+					}
+
 				}
 
 				if to == td {
@@ -367,17 +371,26 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 					q++
 					getBranch(str, prt, q)
 				} else {
-					fmt.Println("Loop 3")
-					str, q, tii = getPrev(str, "")
-					tk = inField(tii, str, trans)
-					at = trans.TXs[q]
+					fmt.Println("Loop 3" + tid)
+					if ff != 0 {
+						str, q, tii = getPrev(str, "")
+						tk = inField(tii, str, trans)
+						at = trans.TXs[q]
 
-					prt.TXs = append(prt.TXs, at)
-					prt.Tid = append(prt.Tid, tidc)
-					tidc++
-					jsonFinal.TDs = append(jsonFinal.TDs, prt)
-					jsonAsTrs = getAll(str, tk, founded)
-
+						prt.TXs = append(prt.TXs, at)
+						prt.Tid = append(prt.Tid, tidc)
+						tidc++
+						jsonFinal.TDs = append(jsonFinal.TDs, prt)
+						jsonAsTrs = getAll(str, tk, founded)
+					} else {
+						at = trans.TXs[rn-1]
+						prt.TXs = append(prt.TXs, at)
+						prt.Tid = append(prt.Tid, tidc)
+						tidc++
+						jsonFinal.TDs = append(jsonFinal.TDs, prt)
+						str, q, tii = getPrev(str, "")
+						jsonAsTrs = getAll(str, q, founded)
+					}
 				}
 
 			}
@@ -446,11 +459,12 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 		}
 
 		std, n, tid = getPrev(str, "")
-		n = inField("", str, trans)
-		fmt.Println(n)
-		fmt.Println(std)
-		fmt.Println(tid)
-		jsonAsTrs = getAll(str, n+1, founded)
+		if n == rn-1 {
+			n = inField("", std, trans)
+			jsonAsTrs = getAll(str, n+1, founded)
+		} else {
+			jsonAsTrs = getAll(str, n, founded)
+		}
 		jsonAsBy, _ := json.Marshal(jsonFinal)
 		return jsonAsBy, nil
 	} else if fun == "findLatestBySeller" {
