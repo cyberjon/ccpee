@@ -318,6 +318,7 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 
 		var jsonFinal chart
 		var jsonAsTrs AllTx
+		//var prt AllTx
 		var tid, tii, std string
 		var getBranch func(string, AllTx, int)
 		str := args[1]
@@ -341,11 +342,10 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 				if q > 0 {
 					td = trans.TXs[q-1].Id
 					to = trans.TXs[q].Id
-					if vn > 1 && q < vn {
+					if vn > 1 && q < rn-1 {
 						fmt.Println(q)
-						tn = trans.TXs[q+1].Id
+						//tn = trans.TXs[q+1].Id
 					}
-
 				}
 
 				if to == td {
@@ -354,9 +354,17 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 						count = trans.TXs[q-1].Prev_Transaction_id
 						fmt.Println(count)
 						cco++
+						if tidc < vn-1 {
+							at := trans.TXs[q]
+							prt.TXs = append(prt.TXs, at)
+							prt.Tid = append(prt.Tid, tidc)
+							jsonFinal.TDs = append(jsonFinal.TDs, prt)
+						}
+
 					}
 					count2 = str
 					co++
+
 					q--
 					getBranch(str, prt, q)
 				} else if to == tn {
@@ -457,13 +465,22 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 			tidc = 10
 			return
 		}
-
 		std, n, tid = getPrev(str, "")
+		fmt.Println(n)
+		fmt.Println(std)
+		fmt.Println(tid)
+
 		if n == rn-1 {
-			n = inField("", std, trans)
-			jsonAsTrs = getAll(str, n+1, founded)
-		} else {
+			//n = inField("", std, trans)
+			fmt.Println(n)
+			fmt.Println(std)
+			fmt.Println(tid)
 			jsonAsTrs = getAll(str, n, founded)
+		} else {
+			fmt.Println(n)
+			fmt.Println(std)
+			fmt.Println(tid)
+			jsonAsTrs = getAll(str, n+1, founded)
 		}
 		jsonAsBy, _ := json.Marshal(jsonFinal)
 		return jsonAsBy, nil

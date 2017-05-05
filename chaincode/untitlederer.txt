@@ -103,7 +103,7 @@ func mainReturnWithCode() {
 		m = "false"
 		tii = ""
 		n = -1
-		resp, err := http.Get("https://99adba5ea39145b588cd55472f399516-vp0.us.blockchain.ibm.com:5003/transactions/" + str)
+		resp, err := http.Get("https://1c965e4727c24d81ace6787e11ca2b4b-vp0.us.blockchain.ibm.com:5001/transactions/" + str)
 		if err != nil {
 			// handle error
 		}
@@ -176,15 +176,14 @@ func mainReturnWithCode() {
 
 			z--
 		}
-		return -1
+		return ti
 	}
 
 	var jsonFinal chart
 	var jsonAsTrs AllTx
-	//var prt AllTx
 	var tid, tii, std string
 	var getBranch func(string, AllTx, int)
-	str := "16144fb2-aa2e-4720-b772-0e6d8334ca3e"
+	str := "c99e263d-0fed-4a14-bdab-3ccc84575147"
 
 	var n int
 	co := 0
@@ -195,20 +194,15 @@ func mainReturnWithCode() {
 	getAll = func(str string, ff int, prt AllTx) AllTx {
 		var at Transaction
 		var tk int
-		tii = tid
+		tii = ""
 
 		q = ff
-		if q > -1 && str != "1" {
+		if q > 0 && str != "1" {
 			tn := "0"
-			td := "n0"
-			to := "0n"
-			if q > 0 {
-				td = trans.TXs[q-1].Id
-				to = trans.TXs[q].Id
-				if vn > 1 && q < rn-1 {
-					fmt.Println(q)
-					//tn = trans.TXs[q+1].Id
-				}
+			td := trans.TXs[q-1].Id
+			to := trans.TXs[q].Id
+			if vn > 1 {
+				tn = trans.TXs[q+1].Id
 			}
 
 			if to == td {
@@ -217,17 +211,9 @@ func mainReturnWithCode() {
 					count = trans.TXs[q-1].Prev_Transaction_id
 					fmt.Println(count)
 					cco++
-					if tidc < vn-1 {
-						at := trans.TXs[q]
-						prt.TXs = append(prt.TXs, at)
-						prt.Tid = append(prt.Tid, tidc)
-						jsonFinal.TDs = append(jsonFinal.TDs, prt)
-					}
-
 				}
 				count2 = str
 				co++
-
 				q--
 				getBranch(str, prt, q)
 			} else if to == tn {
@@ -242,26 +228,17 @@ func mainReturnWithCode() {
 				q++
 				getBranch(str, prt, q)
 			} else {
-				fmt.Println("Loop 3" + tid)
-				if ff != 0 {
-					str, q, tii = getPrev(str, "")
-					tk = inField(tii, str, trans)
-					at = trans.TXs[q]
+				fmt.Println("Loop 3")
+				str, q, tii = getPrev(str, "")
+				tk = inField(tii, str, trans)
+				at = trans.TXs[q]
 
-					prt.TXs = append(prt.TXs, at)
-					prt.Tid = append(prt.Tid, tidc)
-					tidc++
-					jsonFinal.TDs = append(jsonFinal.TDs, prt)
-					jsonAsTrs = getAll(str, tk, founded)
-				} else {
-					at = trans.TXs[rn-1]
-					prt.TXs = append(prt.TXs, at)
-					prt.Tid = append(prt.Tid, tidc)
-					tidc++
-					jsonFinal.TDs = append(jsonFinal.TDs, prt)
-					str, q, tii = getPrev(str, "")
-					jsonAsTrs = getAll(str, q, founded)
-				}
+				prt.TXs = append(prt.TXs, at)
+				prt.Tid = append(prt.Tid, tidc)
+				tidc++
+				jsonFinal.TDs = append(jsonFinal.TDs, prt)
+				jsonAsTrs = getAll(str, tk, founded)
+
 			}
 
 		}
@@ -328,23 +305,13 @@ func mainReturnWithCode() {
 		tidc = 10
 		return
 	}
+
 	std, n, tid = getPrev(str, "")
+	n = inField("", str, trans)
 	fmt.Println(n)
 	fmt.Println(std)
 	fmt.Println(tid)
-
-	if n == rn-1 {
-		//n = inField("", std, trans)
-		fmt.Println(n)
-		fmt.Println(std)
-		fmt.Println(tid)
-		jsonAsTrs = getAll(str, n, founded)
-	} else {
-		fmt.Println(n)
-		fmt.Println(std)
-		fmt.Println(tid)
-		jsonAsTrs = getAll(str, n+1, founded)
-	}
+	jsonAsTrs = getAll(str, n+1, founded)
 
 	jsonAsBy, _ := json.Marshal(jsonFinal)
 	fmt.Println(string(jsonAsBy))
